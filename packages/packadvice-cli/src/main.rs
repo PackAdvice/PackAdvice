@@ -5,7 +5,7 @@ mod exit_code;
 use getopts::Options;
 use std::{env, process, thread};
 use tokio::sync::mpsc::channel;
-use packadvice::{PackAdviser, PackAdviserError, PackAdviserStatus};
+use packadvice::{PackAdviser, PackAdviserStatus};
 use crate::exit_code::ExitCode;
 
 macro_rules! packadvice_title {
@@ -75,11 +75,7 @@ fn advice(directory_path: &str) -> ExitCode {
         }
         Err(error) => {
             error!("{}", error);
-            match error {
-                PackAdviserError::IoError(_) => {
-                    ExitCode::IoError
-                }
-            }
+            ExitCode::from(error)
         }
     }
 }
