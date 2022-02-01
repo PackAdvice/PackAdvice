@@ -1,7 +1,13 @@
+cargo-features = ["different-binary-name"]
+
 [package]
 name = "packadvice-cli"
 version = "0.1.0"
 edition = "2021"
+
+[[bin]]
+name = "packadvice-cli"
+filename = "packadvice"
 
 [dependencies]
 packadvice = { path = "../packadvice" }
