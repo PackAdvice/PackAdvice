@@ -1,3 +1,5 @@
+<p align="right"><b>English</b> / <a href="README.ja.md">日本語</a> </p>
+
 # PackAdvice
 
 A CLI tool that provides advice for improving Minecraft Java Edition resource pack.
