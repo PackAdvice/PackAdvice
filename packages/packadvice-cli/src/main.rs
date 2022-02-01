@@ -38,7 +38,12 @@ fn run() -> i32 {
             }
         }
         Err(parse_err) => {
-            error!("{}", parse_err);
+            error!(
+                "{}\n\
+                Run {} to see command line argument help",
+                parse_err,
+                env!("CARGO_BIN_NAME")
+            );
 
             1
         }
