@@ -9,6 +9,6 @@ assignees: ''
 
 ## 🤷‍♂️ Why?
 
-## ✏️ Possible approach
+## 📝 Possible approach
 
 ## 📎 Links
