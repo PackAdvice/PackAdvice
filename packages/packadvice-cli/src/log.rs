@@ -22,10 +22,19 @@ pub fn error(message: &str) {
 fn _error(message: &str) -> Result<()> {
     let mut stdout = stdout();
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::Red)))?;
+    writeln_with_emoji(&mut stdout, "❌", "*", message)
+}
+
+fn writeln_with_emoji(
+    stream: &mut StandardStream,
+    emoji: &str,
+    fallback: &str,
+    message: &str,
+) -> Result<()> {
     writeln!(
-        &mut stdout,
+        stream,
         "{} {}",
-        Emoji::new("❌", "*"),
+        Emoji::new(emoji, fallback),
         message.replace("\n", Emoji::new("\n   ", "\n  ").string())
     )
 }
