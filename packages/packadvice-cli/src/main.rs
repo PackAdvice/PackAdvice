@@ -1,3 +1,4 @@
+mod emoji;
 mod log;
 
 use getopts::Options;

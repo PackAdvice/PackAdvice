@@ -1,3 +1,4 @@
+use crate::emoji::Emoji;
 use atty::Stream;
 use std::io::{Result, Write};
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
@@ -21,7 +22,12 @@ pub fn error(message: &str) {
 fn _error(message: &str) -> Result<()> {
     let mut stdout = stdout();
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::Red)))?;
-    writeln!(&mut stdout, "{}", message)
+    writeln!(
+        &mut stdout,
+        "{} {}",
+        Emoji::new("❌", "*"),
+        message.replace("\n", Emoji::new("\n   ", "\n  ").string())
+    )
 }
 
 fn stdout() -> StandardStream {
