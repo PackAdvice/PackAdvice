@@ -1,6 +1,7 @@
 // From terminal-supports-emoji, but false for Unix other than Mac.
 // This is because even if it supports UTF8, it may not support emoji.
 // https://github.com/mainrs/terminal-supports-emoji-rs/blob/1ead98a8372dd85946576e4447ed9d40b36f00db/src/lib.rs
+// https://github.com/mainrs/terminal-emoji-rs/blob/8cd1d0642d5294a6ef9e67366a58c2d0e18bb6f3/src/lib.rs
 
 use atty::Stream;
 use std::fmt;
