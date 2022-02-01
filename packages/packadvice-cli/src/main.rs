@@ -1,3 +1,5 @@
+mod log;
+
 use getopts::Options;
 use std::{env, process};
 
@@ -24,9 +26,7 @@ fn run() -> i32 {
                 0
             } else {
                 match option_matches.free.first() {
-                    Some(directory_path) => {
-                        advice(directory_path)
-                    },
+                    Some(directory_path) => advice(directory_path),
                     None => {
                         println!("Usage:");
                         print!("    {} [OPTION]...", env!("CARGO_BIN_NAME"));
@@ -38,7 +38,7 @@ fn run() -> i32 {
             }
         }
         Err(parse_err) => {
-            println!("{}", parse_err);
+            error!("{}", parse_err);
 
             1
         }

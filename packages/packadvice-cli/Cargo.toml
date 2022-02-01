@@ -12,3 +12,5 @@ filename = "packadvice"
 [dependencies]
 packadvice = { path = "../packadvice" }
 getopts = "0.2"
+atty = "0.2"
+termcolor = "1.1"
