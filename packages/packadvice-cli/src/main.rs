@@ -1,9 +1,10 @@
 mod emoji;
 mod log;
+mod exit_code;
 
 use getopts::Options;
 use std::{env, fs, process};
-use packadvice::ExitCode;
+use crate::exit_code::ExitCode;
 
 macro_rules! packadvice_title {
     () => {
