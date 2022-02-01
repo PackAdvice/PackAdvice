@@ -3,7 +3,9 @@ mod log;
 mod exit_code;
 
 use getopts::Options;
-use std::{env, fs, process};
+use std::{env, process, thread};
+use tokio::sync::mpsc::channel;
+use packadvice::{PackAdviser, PackAdviserError, PackAdviserStatus};
 use crate::exit_code::ExitCode;
 
 macro_rules! packadvice_title {
@@ -58,13 +60,26 @@ fn print_version_information() {
 }
 
 fn advice(directory_path: &str) -> ExitCode {
-    match fs::read_dir(directory_path) {
+    let (sender, mut receiver) = channel::<PackAdviserStatus>(64);
+    let cli_thread = thread::spawn(move || {
+        while let Some(status) = receiver.blocking_recv() {
+            match status {
+            }
+        }
+    });
+    match PackAdviser::new().run(directory_path, &sender).map(|_| {
+        cli_thread.join().ok()
+    }) {
         Ok(_) => {
             ExitCode::Success
         }
-        Err(err) => {
-            error!("{}", err);
-            ExitCode::NotFoundDirectory
+        Err(error) => {
+            error!("{}", error);
+            match error {
+                PackAdviserError::IoError(_) => {
+                    ExitCode::IoError
+                }
+            }
         }
     }
 }
