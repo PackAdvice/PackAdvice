@@ -2,7 +2,7 @@ mod emoji;
 mod log;
 
 use getopts::Options;
-use std::{env, process};
+use std::{env, fs, process};
 use packadvice::ExitCode;
 
 macro_rules! packadvice_title {
@@ -31,7 +31,7 @@ fn run() -> ExitCode {
                     Some(directory_path) => advice(directory_path),
                     None => {
                         println!("Usage:");
-                        print!("    {} [OPTION]...", env!("CARGO_BIN_NAME"));
+                        print!("    {} [OPTION]... [PACK DIRECTORY]", env!("CARGO_BIN_NAME"));
                         println!("{}", options.usage(""));
 
                         ExitCode::Success
@@ -57,5 +57,13 @@ fn print_version_information() {
 }
 
 fn advice(directory_path: &str) -> ExitCode {
-    ExitCode::Success
+    match fs::read_dir(directory_path) {
+        Ok(_) => {
+            ExitCode::Success
+        }
+        Err(err) => {
+            error!("{}", err);
+            ExitCode::NotFoundDirectory
+        }
+    }
 }
