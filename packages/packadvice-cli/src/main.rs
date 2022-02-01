@@ -3,6 +3,7 @@ mod log;
 
 use getopts::Options;
 use std::{env, process};
+use packadvice::ExitCode;
 
 macro_rules! packadvice_title {
     () => {
@@ -11,10 +12,10 @@ macro_rules! packadvice_title {
 }
 
 fn main() {
-    process::exit(run());
+    process::exit(run() as i32);
 }
 
-fn run() -> i32 {
+fn run() -> ExitCode {
     let mut options = Options::new();
 
     options.optflag("v", "version", "Prints version information");
@@ -24,7 +25,7 @@ fn run() -> i32 {
             if option_matches.opt_present("v") {
                 print_version_information();
 
-                0
+                ExitCode::Success
             } else {
                 match option_matches.free.first() {
                     Some(directory_path) => advice(directory_path),
@@ -33,7 +34,7 @@ fn run() -> i32 {
                         print!("    {} [OPTION]...", env!("CARGO_BIN_NAME"));
                         println!("{}", options.usage(""));
 
-                        0
+                        ExitCode::Success
                     }
                 }
             }
@@ -46,7 +47,7 @@ fn run() -> i32 {
                 env!("CARGO_BIN_NAME")
             );
 
-            1
+            ExitCode::InputError
         }
     }
 }
@@ -55,6 +56,6 @@ fn print_version_information() {
     println!("{} {}", packadvice_title!(), env!("CARGO_PKG_VERSION"));
 }
 
-fn advice(directory_path: &str) -> i32 {
-    0
+fn advice(directory_path: &str) -> ExitCode {
+    ExitCode::Success
 }
