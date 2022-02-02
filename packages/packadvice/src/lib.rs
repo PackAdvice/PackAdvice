@@ -22,7 +22,7 @@ impl PackAdviser {
         let runtime = Runtime::new().unwrap();
         runtime.block_on(async {
             // Check the pack directory exists
-            fs::read_dir(options.path.as_path()).await?;
+            let _ = fs::read_dir(options.path.as_path()).await?;
 
             // Check pack.mcmeta
             match PackMeta::new(options.path.as_path()).await {
