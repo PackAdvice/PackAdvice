@@ -1,3 +1,4 @@
+use std::path::PathBuf;
 use thiserror::Error;
 use tokio::{fs, io};
 use tokio::sync::mpsc::Sender;
@@ -10,10 +11,10 @@ impl PackAdviser {
         Self
     }
 
-    pub fn run(self, directory_path: &str, status_sender: &Sender<PackAdviserStatus>) -> Result<(), PackAdviserError> {
+    pub fn run(self, options: PackOptions, status_sender: &Sender<PackAdviserStatus>) -> Result<(), PackAdviserError> {
         let runtime = Runtime::new().unwrap();
         runtime.block_on(async {
-            match fs::read_dir(directory_path).await {
+            match fs::read_dir(options.path).await {
                 Ok(_) => {}
                 Err(err) => {
                     return Err(PackAdviserError::IoError(err))
@@ -23,6 +24,11 @@ impl PackAdviser {
             Ok(())
         })
     }
+}
+
+pub struct PackOptions {
+    /// Pack directory path
+    pub path: PathBuf,
 }
 
 #[derive(Error, Debug)]

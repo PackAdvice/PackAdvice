@@ -4,8 +4,9 @@ mod exit_code;
 
 use getopts::Options;
 use std::{env, process, thread};
+use std::path::PathBuf;
 use tokio::sync::mpsc::channel;
-use packadvice::{PackAdviser, PackAdviserStatus};
+use packadvice::{PackAdviser, PackAdviserStatus, PackOptions};
 use crate::exit_code::ExitCode;
 
 macro_rules! packadvice_title {
@@ -67,7 +68,10 @@ fn advice(directory_path: &str) -> ExitCode {
             }
         }
     });
-    match PackAdviser::new().run(directory_path, &sender).map(|_| {
+    let options = PackOptions {
+        path: PathBuf::from(directory_path)
+    };
+    match PackAdviser::new().run(options, &sender).map(|_| {
         cli_thread.join().ok()
     }) {
         Ok(_) => {
