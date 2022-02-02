@@ -29,7 +29,7 @@ impl PackAdviser {
                 Ok(pack_meta) => {
                     status_sender
                         .send(PackAdviserStatus {
-                            path: options.path.as_path().display().to_string(),
+                            path: options.path.display().to_string(),
                             status_type: PackAdviserStatusType::Notice(format!(
                                 "pack_format: {} ({})",
                                 pack_meta.pack_format,
@@ -43,7 +43,7 @@ impl PackAdviser {
                 Err(err) => {
                     status_sender
                         .send(PackAdviserStatus {
-                            path: options.path.as_path().display().to_string(),
+                            path: options.path.display().to_string(),
                             status_type: PackAdviserStatusType::Error(
                                 PackAdviserStatusError::PackMetaError(err),
                             ),
