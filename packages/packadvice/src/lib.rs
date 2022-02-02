@@ -15,7 +15,7 @@ impl PackAdviser {
         let runtime = Runtime::new().unwrap();
         runtime.block_on(async {
             // Check the pack directory exists
-            fs::read_dir(options.path).await?;
+            fs::read_dir(options.path.as_path()).await?;
 
             Ok(())
         })
