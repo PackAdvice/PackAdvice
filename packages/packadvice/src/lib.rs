@@ -14,12 +14,8 @@ impl PackAdviser {
     pub fn run(self, options: PackOptions, status_sender: &Sender<PackAdviserStatus>) -> Result<(), PackAdviserError> {
         let runtime = Runtime::new().unwrap();
         runtime.block_on(async {
-            match fs::read_dir(options.path).await {
-                Ok(_) => {}
-                Err(err) => {
-                    return Err(PackAdviserError::IoError(err))
-                }
-            }
+            // Check the pack directory exists
+            fs::read_dir(options.path).await?;
 
             Ok(())
         })
