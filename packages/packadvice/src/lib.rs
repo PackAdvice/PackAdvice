@@ -15,7 +15,7 @@ impl PackAdviser {
     }
 
     pub fn run(
-        self,
+        &self,
         options: PackOptions,
         status_sender: &Sender<PackAdviserStatus>,
     ) -> Result<(), PackAdviserError> {
