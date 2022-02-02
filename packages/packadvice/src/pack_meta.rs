@@ -1,8 +1,52 @@
+use serde_json::Value;
+use std::fmt;
+use std::path::Path;
+use thiserror::Error;
+use tokio::{fs, io};
+
 pub struct PackMeta {
-    pack_format: i32,
+    pub pack_format: i32,
 }
 
 impl PackMeta {
+    pub async fn new<P: AsRef<Path>>(root_path: P) -> Result<Self, Error> {
+        const PACK_FORMAT_VERSION_IS_NOT_INTEGER: &str =
+            "\"pack_format\" version is not a Java integer";
+        let bytes = fs::read(root_path.as_ref().join("pack.mcmeta")).await?;
+        return match serde_json::from_slice(&*bytes)? {
+            Value::Object(root_object) => {
+                match root_object
+                    .get("pack")
+                    .ok_or(Error::SyntaxError("Missing \"pack\" key in root object"))?
+                {
+                    Value::Object(pack_meta_object) => {
+                        match pack_meta_object
+                            .get("pack_format")
+                            .ok_or(Error::SyntaxError(
+                                "Missing \"pack_format\" key in pack metadata object",
+                            ))? {
+                            Value::Number(pack_format_version_number) => {
+                                let pack_format =
+                                    i32::try_from(pack_format_version_number.as_i64().ok_or(
+                                        Error::SyntaxError(PACK_FORMAT_VERSION_IS_NOT_INTEGER),
+                                    )?)
+                                    .map_err(|_| {
+                                        Error::SyntaxError(PACK_FORMAT_VERSION_IS_NOT_INTEGER)
+                                    })?;
+                                Ok(Self { pack_format })
+                            }
+                            _ => Err(Error::SyntaxError(PACK_FORMAT_VERSION_IS_NOT_INTEGER)),
+                        }
+                    }
+                    _ => Err(Error::SyntaxError(
+                        "The \"pack\" key value is not a JSON object",
+                    )),
+                }
+            }
+            _ => Err(Error::SyntaxError("The JSON value is not an object")),
+        };
+    }
+
     /// pack_format -> minecraft version
     ///
     /// https://minecraft.fandom.com/wiki/Pack_format
@@ -39,8 +83,36 @@ impl PackMeta {
     }
 }
 
+#[derive(Error, Debug)]
+pub enum Error {
+    #[error("I/O error: {0}")]
+    IoError(#[from] io::Error),
+
+    #[error("Json error: {0}")]
+    JsonError(#[from] serde_json::Error),
+
+    #[error("Syntax error: {0}")]
+    SyntaxError(&'static str),
+}
+
 pub enum PackMinecraftVersion<'a> {
     Versions { from: &'a str, to: &'a str },
     Version(&'a str),
     Unknown,
+}
+
+impl fmt::Display for PackMinecraftVersion<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            PackMinecraftVersion::Versions { from, to } => {
+                write!(f, "{}-{}", from, to)
+            }
+            PackMinecraftVersion::Version(version) => {
+                write!(f, "{}", version)
+            }
+            PackMinecraftVersion::Unknown => {
+                write!(f, "unknown")
+            }
+        }
+    }
 }

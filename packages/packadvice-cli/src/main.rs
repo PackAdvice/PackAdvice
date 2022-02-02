@@ -4,7 +4,7 @@ mod log;
 
 use crate::exit_code::ExitCode;
 use getopts::Options;
-use packadvice::{PackAdviser, PackAdviserStatus, PackOptions};
+use packadvice::{PackAdviser, PackAdviserStatus, PackAdviserStatusType, PackOptions};
 use std::path::PathBuf;
 use std::{env, process, thread};
 use tokio::sync::mpsc::channel;
@@ -67,7 +67,16 @@ fn advice(directory_path: &str) -> ExitCode {
     let (sender, mut receiver) = channel::<PackAdviserStatus>(64);
     let cli_thread = thread::spawn(move || {
         while let Some(status) = receiver.blocking_recv() {
-            match status {}
+            match status {
+                PackAdviserStatus { path, status_type } => match status_type {
+                    PackAdviserStatusType::Notice(message) => {
+                        trace!("[{}] {}", path, message)
+                    }
+                    PackAdviserStatusType::Error(err) => {
+                        error!("[{}] {}", path, err)
+                    }
+                },
+            }
         }
     });
     let options = PackOptions {

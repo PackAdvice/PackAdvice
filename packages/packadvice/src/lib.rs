@@ -1,5 +1,6 @@
 mod pack_meta;
 
+use crate::pack_meta::PackMeta;
 use std::path::PathBuf;
 use thiserror::Error;
 use tokio::runtime::Runtime;
@@ -23,6 +24,36 @@ impl PackAdviser {
             // Check the pack directory exists
             fs::read_dir(options.path.as_path()).await?;
 
+            // Check pack.mcmeta
+            match PackMeta::new(options.path.as_path()).await {
+                Ok(pack_meta) => {
+                    status_sender
+                        .send(PackAdviserStatus {
+                            path: options.path.as_path().display().to_string(),
+                            status_type: PackAdviserStatusType::Notice(format!(
+                                "pack_format: {} ({})",
+                                pack_meta.pack_format,
+                                pack_meta.minecraft_version()
+                            )),
+                        })
+                        .await
+                        .ok();
+                    pack_meta
+                }
+                Err(err) => {
+                    status_sender
+                        .send(PackAdviserStatus {
+                            path: options.path.as_path().display().to_string(),
+                            status_type: PackAdviserStatusType::Error(
+                                PackAdviserStatusError::PackMetaError(err),
+                            ),
+                        })
+                        .await
+                        .ok();
+                    return Ok(());
+                }
+            };
+
             Ok(())
         })
     }
@@ -39,4 +70,18 @@ pub enum PackAdviserError {
     IoError(#[from] io::Error),
 }
 
-pub enum PackAdviserStatus {}
+pub struct PackAdviserStatus {
+    pub path: String,
+    pub status_type: PackAdviserStatusType,
+}
+
+pub enum PackAdviserStatusType {
+    Notice(String),
+    Error(PackAdviserStatusError),
+}
+
+#[derive(Error, Debug)]
+pub enum PackAdviserStatusError {
+    #[error("{0}")]
+    PackMetaError(pack_meta::Error),
+}
