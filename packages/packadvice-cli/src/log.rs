@@ -55,7 +55,7 @@ fn writeln_with_emoji(
         stream,
         "{} {}",
         Emoji::new(emoji, fallback),
-        message.replace("\n", Emoji::new("\n   ", "\n  ").string())
+        message.replace('\n', Emoji::new("\n   ", "\n  ").string())
     )
 }
 

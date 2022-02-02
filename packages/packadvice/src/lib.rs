@@ -7,6 +7,7 @@ use tokio::runtime::Runtime;
 use tokio::sync::mpsc::Sender;
 use tokio::{fs, io};
 
+#[derive(Default)]
 pub struct PackAdviser;
 
 impl PackAdviser {

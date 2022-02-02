@@ -84,6 +84,7 @@ impl PackMeta {
 }
 
 #[derive(Error, Debug)]
+#[allow(clippy::enum_variant_names)]
 pub enum Error {
     #[error("I/O error: {0}")]
     IoError(#[from] io::Error),

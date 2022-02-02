@@ -66,16 +66,14 @@ fn print_version_information() {
 fn advice(directory_path: &str) -> ExitCode {
     let (sender, mut receiver) = channel::<PackAdviserStatus>(64);
     let cli_thread = thread::spawn(move || {
-        while let Some(status) = receiver.blocking_recv() {
-            match status {
-                PackAdviserStatus { path, status_type } => match status_type {
-                    PackAdviserStatusType::Notice(message) => {
-                        trace!("[{}] {}", path, message)
-                    }
-                    PackAdviserStatusType::Error(err) => {
-                        error!("[{}] {}", path, err)
-                    }
-                },
+        while let Some(PackAdviserStatus { path, status_type }) = receiver.blocking_recv() {
+            match status_type {
+                PackAdviserStatusType::Notice(message) => {
+                    trace!("[{}] {}", path, message)
+                }
+                PackAdviserStatusType::Error(err) => {
+                    error!("[{}] {}", path, err)
+                }
             }
         }
     });
