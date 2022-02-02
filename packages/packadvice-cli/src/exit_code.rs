@@ -9,7 +9,7 @@ pub enum ExitCode {
 impl From<PackAdviserError> for ExitCode {
     fn from(err: PackAdviserError) -> Self {
         match err {
-            PackAdviserError::IoError(_) => ExitCode::IoError
+            PackAdviserError::IoError(_) => ExitCode::IoError,
         }
     }
 }

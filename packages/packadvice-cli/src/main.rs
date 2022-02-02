@@ -1,13 +1,13 @@
 mod emoji;
-mod log;
 mod exit_code;
+mod log;
 
-use getopts::Options;
-use std::{env, process, thread};
-use std::path::PathBuf;
-use tokio::sync::mpsc::channel;
-use packadvice::{PackAdviser, PackAdviserStatus, PackOptions};
 use crate::exit_code::ExitCode;
+use getopts::Options;
+use packadvice::{PackAdviser, PackAdviserStatus, PackOptions};
+use std::path::PathBuf;
+use std::{env, process, thread};
+use tokio::sync::mpsc::channel;
 
 macro_rules! packadvice_title {
     () => {
@@ -35,7 +35,10 @@ fn run() -> ExitCode {
                     Some(directory_path) => advice(directory_path),
                     None => {
                         println!("Usage:");
-                        print!("    {} [OPTION]... [PACK DIRECTORY]", env!("CARGO_BIN_NAME"));
+                        print!(
+                            "    {} [OPTION]... [PACK DIRECTORY]",
+                            env!("CARGO_BIN_NAME")
+                        );
                         println!("{}", options.usage(""));
 
                         ExitCode::Success
@@ -64,19 +67,17 @@ fn advice(directory_path: &str) -> ExitCode {
     let (sender, mut receiver) = channel::<PackAdviserStatus>(64);
     let cli_thread = thread::spawn(move || {
         while let Some(status) = receiver.blocking_recv() {
-            match status {
-            }
+            match status {}
         }
     });
     let options = PackOptions {
-        path: PathBuf::from(directory_path)
+        path: PathBuf::from(directory_path),
     };
-    match PackAdviser::new().run(options, &sender).map(|_| {
-        cli_thread.join().ok()
-    }) {
-        Ok(_) => {
-            ExitCode::Success
-        }
+    match PackAdviser::new()
+        .run(options, &sender)
+        .map(|_| cli_thread.join().ok())
+    {
+        Ok(_) => ExitCode::Success,
         Err(error) => {
             error!("{}", error);
             ExitCode::from(error)

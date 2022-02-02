@@ -2,9 +2,9 @@ mod pack_meta;
 
 use std::path::PathBuf;
 use thiserror::Error;
-use tokio::{fs, io};
-use tokio::sync::mpsc::Sender;
 use tokio::runtime::Runtime;
+use tokio::sync::mpsc::Sender;
+use tokio::{fs, io};
 
 pub struct PackAdviser;
 
@@ -13,7 +13,11 @@ impl PackAdviser {
         Self
     }
 
-    pub fn run(self, options: PackOptions, status_sender: &Sender<PackAdviserStatus>) -> Result<(), PackAdviserError> {
+    pub fn run(
+        self,
+        options: PackOptions,
+        status_sender: &Sender<PackAdviserStatus>,
+    ) -> Result<(), PackAdviserError> {
         let runtime = Runtime::new().unwrap();
         runtime.block_on(async {
             // Check the pack directory exists
@@ -32,8 +36,7 @@ pub struct PackOptions {
 #[derive(Error, Debug)]
 pub enum PackAdviserError {
     #[error("I/O error: {0}")]
-    IoError(#[from] io::Error)
+    IoError(#[from] io::Error),
 }
 
-pub enum PackAdviserStatus {
-}
+pub enum PackAdviserStatus {}
