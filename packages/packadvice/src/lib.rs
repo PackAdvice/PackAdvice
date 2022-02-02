@@ -1,3 +1,5 @@
+mod pack_meta;
+
 use std::path::PathBuf;
 use thiserror::Error;
 use tokio::{fs, io};
