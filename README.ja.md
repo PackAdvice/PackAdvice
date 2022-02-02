@@ -2,7 +2,7 @@
 
 # PackAdvice
 
-Minecraft Java Edition のリソースパックに関して改善案を教えてくれる CLI ツールです。
+Minecraft Java Edition のリソースパックに対して改善案を教えてくれる CLI ツールです。
 
 ## 📚 機能
 
