@@ -10,40 +10,40 @@ pub struct PackMeta {
 
 impl PackMeta {
     pub async fn new<P: AsRef<Path>>(root_path: P) -> Result<Self, Error> {
-        const PACK_FORMAT_VERSION_IS_NOT_INTEGER: &str =
-            "\"pack_format\" version is not a Java integer";
+        const PACK_FORMAT_MUST_BE_INTEGER: &str = "\"pack_format\" must be an integer";
+        const MISSING_PACK_KEY: &str = "Missing \"pack\" key in root object";
+        const MISSING_PACK_FORMAT_KEY: &str = "Missing \"pack_format\" key in pack metadata object";
+        const PACK_MUST_BE_OBJECT: &str = "\"pack\" key value must be a JSON object";
+        const JSON_MUST_BE_OBJECT: &str = "JSON value is not an object";
+
         let bytes = fs::read(root_path.as_ref().join("pack.mcmeta")).await?;
         return match serde_json::from_slice(&*bytes)? {
             Value::Object(root_object) => {
                 match root_object
                     .get("pack")
-                    .ok_or(Error::SyntaxError("Missing \"pack\" key in root object"))?
+                    .ok_or(Error::SyntaxError(MISSING_PACK_KEY))?
                 {
                     Value::Object(pack_meta_object) => {
                         match pack_meta_object
                             .get("pack_format")
-                            .ok_or(Error::SyntaxError(
-                                "Missing \"pack_format\" key in pack metadata object",
-                            ))? {
+                            .ok_or(Error::SyntaxError(MISSING_PACK_FORMAT_KEY))?
+                        {
                             Value::Number(pack_format_version_number) => {
-                                let pack_format =
-                                    i32::try_from(pack_format_version_number.as_i64().ok_or(
-                                        Error::SyntaxError(PACK_FORMAT_VERSION_IS_NOT_INTEGER),
-                                    )?)
-                                    .map_err(|_| {
-                                        Error::SyntaxError(PACK_FORMAT_VERSION_IS_NOT_INTEGER)
-                                    })?;
+                                let pack_format = i32::try_from(
+                                    pack_format_version_number
+                                        .as_i64()
+                                        .ok_or(Error::SyntaxError(PACK_FORMAT_MUST_BE_INTEGER))?,
+                                )
+                                .map_err(|_| Error::SyntaxError(PACK_FORMAT_MUST_BE_INTEGER))?;
                                 Ok(Self { pack_format })
                             }
-                            _ => Err(Error::SyntaxError(PACK_FORMAT_VERSION_IS_NOT_INTEGER)),
+                            _ => Err(Error::SyntaxError(PACK_FORMAT_MUST_BE_INTEGER)),
                         }
                     }
-                    _ => Err(Error::SyntaxError(
-                        "The \"pack\" key value is not a JSON object",
-                    )),
+                    _ => Err(Error::SyntaxError(PACK_MUST_BE_OBJECT)),
                 }
             }
-            _ => Err(Error::SyntaxError("The JSON value is not an object")),
+            _ => Err(Error::SyntaxError(JSON_MUST_BE_OBJECT)),
         };
     }
 
