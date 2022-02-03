@@ -6,7 +6,8 @@ use crate::exit_code::ExitCode;
 use getopts::Options;
 use packadvice::{PackAdviser, PackAdviserStatus, PackAdviserStatusType, PackOptions};
 use std::path::PathBuf;
-use std::{env, process, thread};
+use std::{env, process};
+use tokio::runtime;
 use tokio::sync::mpsc::channel;
 
 fn main() {
@@ -59,8 +60,9 @@ fn print_version_information() {
 
 fn advice(directory_path: &str) -> ExitCode {
     let (sender, mut receiver) = channel::<PackAdviserStatus>(64);
-    let cli_thread = thread::spawn(move || {
-        while let Some(PackAdviserStatus { path, status_type }) = receiver.blocking_recv() {
+    let runtime = runtime::Builder::new_current_thread().build().unwrap();
+    let cli_thread = runtime.spawn(async move {
+        while let Some(PackAdviserStatus { path, status_type }) = receiver.recv().await {
             match status_type {
                 PackAdviserStatusType::Notice(message) => {
                     trace!("[{}] {}", path, message)
@@ -74,14 +76,17 @@ fn advice(directory_path: &str) -> ExitCode {
     let options = PackOptions {
         path: PathBuf::from(directory_path),
     };
-    match PackAdviser::new()
-        .run(options, &sender)
-        .map(|_| cli_thread.join().ok())
-    {
-        Ok(_) => ExitCode::Success,
-        Err(error) => {
-            error!("{}", error);
-            ExitCode::from(error)
+    let packadviser = runtime.spawn_blocking(|| PackAdviser::new().run(options, sender));
+    runtime.block_on(async {
+        match packadviser.await.unwrap() {
+            Ok(_) => {
+                cli_thread.await.ok();
+                ExitCode::Success
+            }
+            Err(error) => {
+                error!("{}", error);
+                ExitCode::from(error)
+            }
         }
-    }
+    })
 }

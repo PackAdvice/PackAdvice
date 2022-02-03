@@ -18,7 +18,7 @@ impl PackAdviser {
     pub fn run(
         &self,
         options: PackOptions,
-        status_sender: &Sender<PackAdviserStatus>,
+        status_sender: Sender<PackAdviserStatus>,
     ) -> Result<(), PackAdviserError> {
         let runtime = Runtime::new().unwrap();
         runtime.block_on(async {
