@@ -9,12 +9,6 @@ use std::path::PathBuf;
 use std::{env, process, thread};
 use tokio::sync::mpsc::channel;
 
-macro_rules! packadvice_title {
-    () => {
-        "PackAdvice"
-    };
-}
-
 fn main() {
     process::exit(run() as i32);
 }
@@ -60,7 +54,7 @@ fn run() -> ExitCode {
 }
 
 fn print_version_information() {
-    println!("{} {}", packadvice_title!(), env!("CARGO_PKG_VERSION"));
+    println!("PackAdvice {}", env!("CARGO_PKG_VERSION"));
 }
 
 fn advice(directory_path: &str) -> ExitCode {
