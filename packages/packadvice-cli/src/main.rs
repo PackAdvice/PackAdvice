@@ -29,12 +29,14 @@ fn run() -> ExitCode {
                 match option_matches.free.first() {
                     Some(directory_path) => advice(directory_path),
                     None => {
-                        println!("Usage:");
-                        print!(
-                            "    {} [OPTION]... [PACK DIRECTORY]",
-                            env!("CARGO_BIN_NAME")
+                        println!(
+                            "{}",
+                            options.usage(concat!(
+                                "Usage:\n    ",
+                                env!("CARGO_BIN_NAME"),
+                                " [Option...] [Pack Directory]"
+                            ))
                         );
-                        println!("{}", options.usage(""));
 
                         ExitCode::Success
                     }
