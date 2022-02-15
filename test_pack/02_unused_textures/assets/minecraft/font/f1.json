@@ -1,0 +1,8 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "minecraft:t2.png"
+    }
+  ]
+}
