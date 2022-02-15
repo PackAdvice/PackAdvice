@@ -69,6 +69,9 @@ fn advice(directory_path: &str) -> ExitCode {
                 PackAdviserStatusType::Notice(message) => {
                     trace!("[{}] {}", path, message)
                 }
+                PackAdviserStatusType::Warn(message) => {
+                    warn!("[{}] {}", path, message)
+                }
                 PackAdviserStatusType::Error(err) => {
                     error!("[{}] {}", path, err)
                 }

@@ -1,6 +1,9 @@
+mod model;
 mod pack_meta;
+mod unused_texture;
 
 use crate::pack_meta::PackMeta;
+use crate::unused_texture::UnusedTextureChecker;
 use std::path::PathBuf;
 use thiserror::Error;
 use tokio::runtime::Runtime;
@@ -55,6 +58,17 @@ impl PackAdviser {
                 }
             };
 
+            let unused_texture_checker = UnusedTextureChecker::new(options.path.as_path()).await;
+            for unused_texture in unused_texture_checker.unused_textures {
+                status_sender
+                    .send(PackAdviserStatus {
+                        path: unused_texture,
+                        status_type: PackAdviserStatusType::Warn("Unused texture in model".to_string()),
+                    })
+                    .await
+                    .ok();
+            }
+
             Ok(())
         })
     }
@@ -78,6 +92,7 @@ pub struct PackAdviserStatus {
 
 pub enum PackAdviserStatusType {
     Notice(String),
+    Warn(String),
     Error(PackAdviserStatusError),
 }
 

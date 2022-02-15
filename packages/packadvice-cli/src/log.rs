@@ -11,7 +11,15 @@ macro_rules! error {
     })
 }
 
-/// Prints the message as an notice.
+/// Prints the message as a warn.
+#[macro_export]
+macro_rules! warn {
+    ($($arg:tt)*) => ({
+        $crate::log::warn(&*format!($($arg)*));
+    })
+}
+
+/// Prints the message as a notice.
 #[macro_export]
 macro_rules! trace {
     ($($arg:tt)*) => ({
@@ -26,7 +34,14 @@ pub fn error(message: &str) {
     }
 }
 
-/// Prints the message as an notice.
+/// Prints the message as a warn.
+pub fn warn(message: &str) {
+    if _warn(message).is_err() {
+        println!("$ {}", message);
+    }
+}
+
+/// Prints the message as a notice.
 pub fn trace(message: &str) {
     if _trace(message).is_err() {
         println!("> {}", message);
@@ -37,6 +52,12 @@ fn _error(message: &str) -> Result<()> {
     let mut stdout = stdout();
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::Red)))?;
     writeln_with_emoji(&mut stdout, "❌", "*", message)
+}
+
+fn _warn(message: &str) -> Result<()> {
+    let mut stdout = stdout();
+    stdout.set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))?;
+    writeln_with_emoji(&mut stdout, "⚡", "$", message)
 }
 
 fn _trace(message: &str) -> Result<()> {
