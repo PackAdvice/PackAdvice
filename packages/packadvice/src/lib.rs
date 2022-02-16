@@ -1,7 +1,11 @@
 mod model;
+mod namespace;
+mod pack;
 mod pack_meta;
+mod texture;
 mod unused_texture;
 
+use crate::pack::Pack;
 use crate::pack_meta::PackMeta;
 use crate::unused_texture::UnusedTextureChecker;
 use std::path::PathBuf;
@@ -28,42 +32,30 @@ impl PackAdviser {
             // Check the pack directory exists
             let _ = fs::read_dir(options.path.as_path()).await?;
 
-            // Check pack.mcmeta
-            match PackMeta::new(options.path.as_path()).await {
-                Ok(pack_meta) => {
-                    status_sender
-                        .send(PackAdviserStatus {
-                            path: options.path.display().to_string(),
-                            status_type: PackAdviserStatusType::Notice(format!(
-                                "pack_format: {} ({})",
-                                pack_meta.pack_format,
-                                pack_meta.minecraft_version()
-                            )),
-                        })
-                        .await
-                        .ok();
-                    pack_meta
-                }
-                Err(err) => {
-                    status_sender
-                        .send(PackAdviserStatus {
-                            path: options.path.display().to_string(),
-                            status_type: PackAdviserStatusType::Error(
-                                PackAdviserStatusError::PackMetaError(err),
-                            ),
-                        })
-                        .await
-                        .ok();
-                    return Ok(());
-                }
-            };
+            let pack = Pack::new(options.path.as_path()).await?;
 
-            let unused_texture_checker = UnusedTextureChecker::new(options.path.as_path()).await;
+            // Check pack.mcmeta
+            status_sender
+                .send(PackAdviserStatus {
+                    path: options.path.display().to_string(),
+                    status_type: PackAdviserStatusType::Notice(format!(
+                        "pack_format: {} ({})",
+                        pack.pack_meta.pack_format,
+                        pack.pack_meta.minecraft_version()
+                    )),
+                })
+                .await
+                .ok();
+
+            // Check unused textures
+            let unused_texture_checker = UnusedTextureChecker::new(&pack);
             for unused_texture in unused_texture_checker.unused_textures {
                 status_sender
                     .send(PackAdviserStatus {
                         path: unused_texture,
-                        status_type: PackAdviserStatusType::Warn("Unused texture in model".to_string()),
+                        status_type: PackAdviserStatusType::Warn(
+                            "Unused texture in model".to_string(),
+                        ),
                     })
                     .await
                     .ok();
@@ -83,6 +75,9 @@ pub struct PackOptions {
 pub enum PackAdviserError {
     #[error("I/O error: {0}")]
     IoError(#[from] io::Error),
+
+    #[error("Pack error: {0}")]
+    PackError(#[from] pack::Error),
 }
 
 pub struct PackAdviserStatus {

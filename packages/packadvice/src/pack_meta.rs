@@ -9,14 +9,14 @@ pub struct PackMeta {
 }
 
 impl PackMeta {
-    pub async fn new<P: AsRef<Path>>(root_path: P) -> Result<Self, Error> {
+    pub async fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         const PACK_FORMAT_MUST_BE_INTEGER: &str = "\"pack_format\" must be an integer";
         const MISSING_PACK_KEY: &str = "Missing \"pack\" key in root object";
         const MISSING_PACK_FORMAT_KEY: &str = "Missing \"pack_format\" key in pack metadata object";
         const PACK_MUST_BE_OBJECT: &str = "\"pack\" key value must be a JSON object";
         const JSON_MUST_BE_OBJECT: &str = "JSON value is not an object";
 
-        let bytes = fs::read(root_path.as_ref().join("pack.mcmeta")).await?;
+        let bytes = fs::read(path).await?;
         return match serde_json::from_slice(&*bytes)? {
             Value::Object(root_object) => {
                 match root_object

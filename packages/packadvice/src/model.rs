@@ -1,7 +1,9 @@
+use async_recursion::async_recursion;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
 use thiserror::Error;
+use tokio::fs::ReadDir;
 use tokio::{fs, io};
 
 pub struct Model {
@@ -22,6 +24,33 @@ impl Model {
             }
         }
         Ok(Model { textures })
+    }
+}
+
+pub async fn get_models<P: AsRef<Path>>(path: P) -> Vec<Model> {
+    let mut models: Vec<Model> = Vec::new();
+    if let Ok(directory) = fs::read_dir(path).await {
+        get_models_recursion(directory, &mut models).await;
+    }
+    models
+}
+
+#[async_recursion]
+async fn get_models_recursion(mut directory: ReadDir, models: &mut Vec<Model>) {
+    while let Some(child) = directory.next_entry().await.unwrap() {
+        if let Ok(child_meta) = child.metadata().await {
+            if child_meta.is_dir() {
+                if let Ok(child_dir) = fs::read_dir(child.path()).await {
+                    get_models_recursion(child_dir, models).await
+                }
+            } else if let Some(extension) = child.path().extension() {
+                if extension.eq_ignore_ascii_case("json") {
+                    if let Ok(model) = Model::new(child.path()).await {
+                        models.push(model)
+                    }
+                }
+            }
+        }
     }
 }
 
