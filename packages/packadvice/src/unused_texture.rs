@@ -7,6 +7,14 @@ pub struct UnusedTextureChecker {
 }
 
 impl UnusedTextureChecker {
+    pub fn sorted_unused_textures(self) -> Vec<String> {
+        let mut vec = Vec::from_iter(self.unused_textures);
+        vec.sort();
+        vec
+    }
+}
+
+impl UnusedTextureChecker {
     pub fn new(pack: &Pack) -> Self {
         let mut unused_textures = HashSet::new();
         for namespace in &pack.namespaces {

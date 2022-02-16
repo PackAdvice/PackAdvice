@@ -49,7 +49,7 @@ impl PackAdviser {
 
             // Check unused textures
             let unused_texture_checker = UnusedTextureChecker::new(&pack);
-            for unused_texture in unused_texture_checker.unused_textures {
+            for unused_texture in unused_texture_checker.sorted_unused_textures() {
                 status_sender
                     .send(PackAdviserStatus {
                         path: unused_texture,
