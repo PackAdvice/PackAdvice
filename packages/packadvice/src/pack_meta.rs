@@ -1,7 +1,6 @@
 use serde_json::Value;
 use std::fmt;
 use std::path::Path;
-use thiserror::Error;
 use tokio::{fs, io};
 
 pub struct PackMeta {
@@ -83,7 +82,7 @@ impl PackMeta {
     }
 }
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 #[allow(clippy::enum_variant_names)]
 pub enum Error {
     #[error("I/O error: {0}")]

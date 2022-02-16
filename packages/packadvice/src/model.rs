@@ -2,7 +2,6 @@ use async_recursion::async_recursion;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
-use thiserror::Error;
 use tokio::fs::ReadDir;
 use tokio::{fs, io};
 
@@ -54,7 +53,7 @@ async fn get_models_recursion(mut directory: ReadDir, models: &mut Vec<Model>) {
     }
 }
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 #[allow(clippy::enum_variant_names)]
 pub enum Error {
     #[error("I/O error: {0}")]

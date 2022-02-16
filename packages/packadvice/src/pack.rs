@@ -1,7 +1,6 @@
 use crate::namespace::{get_namespaces, Namespace};
 use crate::{pack_meta, PackMeta};
 use std::path::Path;
-use thiserror::Error;
 use tokio::fs;
 
 pub struct Pack {
@@ -25,7 +24,7 @@ impl Pack {
     }
 }
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 #[allow(clippy::enum_variant_names)]
 pub enum Error {
     #[error("[pack.mcmeta] {0}")]

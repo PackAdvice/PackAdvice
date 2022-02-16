@@ -9,7 +9,6 @@ use crate::pack::Pack;
 use crate::pack_meta::PackMeta;
 use crate::unused_texture::UnusedTextureChecker;
 use std::path::PathBuf;
-use thiserror::Error;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::Sender;
 use tokio::{fs, io};
@@ -71,7 +70,7 @@ pub struct PackOptions {
     pub path: PathBuf,
 }
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum PackAdviserError {
     #[error("I/O error: {0}")]
     IoError(#[from] io::Error),
@@ -91,7 +90,7 @@ pub enum PackAdviserStatusType {
     Error(PackAdviserStatusError),
 }
 
-#[derive(Error, Debug)]
+#[derive(thiserror::Error, Debug)]
 pub enum PackAdviserStatusError {
     #[error("{0}")]
     PackMetaError(pack_meta::Error),
