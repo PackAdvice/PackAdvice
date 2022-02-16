@@ -18,16 +18,25 @@ impl UnusedTextureChecker {
             for font in &namespace.fonts {
                 for provider in &font.providers {
                     if let Some(file) = &provider.file {
-                        let texture = format!("{}", Path::new(file.as_str()).with_extension("").display());
+                        let texture = if file.contains(':') {
+                            format!("{}", Path::new(file.as_str()).with_extension("").display())
+                        } else {
+                            format!("{}:{}", namespace.name, Path::new(file.as_str()).with_extension("").display())
+                        };
                         unused_textures
                             .retain(|t| t.as_str() != texture);
                     }
                 }
             }
             for model in &namespace.models {
-                for texture in model.textures.values() {
+                for value in model.textures.values() {
+                    let texture = if value.contains(':') {
+                        value.to_string()
+                    } else {
+                        format!("{}:{}", namespace.name, value)
+                    };
                     unused_textures
-                        .retain(|t| t.as_str() != format!("{}:{}", namespace.name, texture));
+                        .retain(|t| t.as_str() != texture);
                 }
             }
         }
