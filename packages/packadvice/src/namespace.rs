@@ -1,6 +1,6 @@
 use crate::model::{get_models, Model};
 use crate::texture::{get_textures, Texture};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use tokio::fs::ReadDir;
 use crate::font::{Font, get_fonts};
 
@@ -13,13 +13,13 @@ pub struct Namespace {
 }
 
 impl Namespace {
-    pub async fn new(path: PathBuf) -> Self {
+    pub async fn new<P: AsRef<Path>>(path: P) -> Self {
         Namespace {
-            name: path.file_name().unwrap().to_str().unwrap().to_string(),
-            path: path.to_path_buf(),
-            fonts: get_fonts(path.join("font")).await,
-            models: get_models(path.join("models")).await,
-            textures: get_textures(path.join("textures")).await,
+            name: path.as_ref().file_name().unwrap().to_str().unwrap().to_string(),
+            path: path.as_ref().to_path_buf(),
+            fonts: get_fonts(path.as_ref().join("font")).await,
+            models: get_models(path.as_ref().join("models")).await,
+            textures: get_textures(path.as_ref().join("textures")).await,
         }
     }
 }
