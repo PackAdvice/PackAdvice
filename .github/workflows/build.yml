@@ -4,8 +4,27 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  linux-x64-musl:
-    runs-on: ubuntu-latest
+  build:
+    strategy:
+      matrix:
+        name:
+          - Linux, x64
+          - Windows x64
+          - MacOS, x64
+        include:
+          - name: Linux, x64
+            target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            app-name: packadvice
+          - name: Windows x64
+            target: x86_64-pc-windows-msvc
+            os: windows-latest
+            app-name: packadvice.exe
+          - name: MacOS, x64
+            target: x86_64-apple-darwin
+            os: macos-latest
+            app-name: packadvice
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -13,54 +32,14 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          target: x86_64-unknown-linux-musl
+          target: ${{ matrix.target }}
       - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
-          args: --release --all-features
+          args: --release --all-features --target=${{ matrix.target }}
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: 'PackAdvice executable (Linux, x64, musl)'
-          path: target/release/packadvice
-  windows-x64-gnu:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          target: x86_64-pc-windows-gnu
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features
-      - name: Upload Binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: 'PackAdvice executable (Windows, x64, gnu)'
-          path: target/release/packadvice.exe
-  macos-x64-darwin:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup toolchain
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          target: x86_64-apple-darwin
-      - name: Build
-        uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features
-      - name: Upload Binary
-        uses: actions/upload-artifact@v2
-        with:
-          name: 'PackAdvice executable (MacOS, x64)'
-          path: target/release/packadvice
+          name: PackAdvice executable (${{ matrix.name }})
+          path: target/${{ matrix.target }}/release/${{ matrix.app-name }}
