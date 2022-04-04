@@ -7,6 +7,7 @@ use tokio::{fs, io};
 
 pub struct Model {
     pub pack_path: String,
+    pub parent: Option<String>,
     pub textures: HashMap<String, String>,
     pub elements: Vec<Element>,
     pub overrides: Vec<Override>,
@@ -32,10 +33,18 @@ pub struct Predicate {
 impl Model {
     pub async fn new<P: AsRef<Path>>(path: P, pack_path: String) -> Result<Self, Error> {
         let bytes = fs::read(path.as_ref()).await?;
+        let mut parent = None;
         let mut textures = HashMap::new();
         let mut elements = Vec::new();
         let mut overrides = Vec::new();
         if let Value::Object(root_object) = serde_json::from_slice(&*bytes)? {
+            if let Some(Value::String(parent_value)) = root_object.get("parent") {
+                if parent_value.contains(':') {
+                    parent = Some(parent_value.as_str().to_string())
+                } else {
+                    parent = Some(format!("minecraft:{}", parent_value))
+                }
+            }
             if let Some(Value::Object(textures_values)) = root_object.get("textures") {
                 for (key, value) in textures_values {
                     if value.is_string() {
@@ -95,6 +104,7 @@ impl Model {
         }
         Ok(Model {
             pack_path,
+            parent,
             textures,
             elements,
             overrides,
