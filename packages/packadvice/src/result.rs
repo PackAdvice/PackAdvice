@@ -43,7 +43,7 @@ impl PackResult {
                 }
                 if !self.missing_texture_checker.models.is_empty() {
                     file.write(
-                        b"# Models with #missing texture\n\
+                        b"# Models that contain #missing texture\n\
                         <details>\n\
                         <summary>List</summary>\n\n",
                     )
