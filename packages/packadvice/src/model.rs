@@ -6,13 +6,24 @@ use tokio::fs::ReadDir;
 use tokio::{fs, io};
 
 pub struct Model {
+    pub pack_path: String,
     pub textures: HashMap<String, String>,
+    pub elements: Vec<Element>,
+}
+
+pub struct Element {
+    pub faces: HashMap<String, Face>,
+}
+
+pub struct Face {
+    pub texture: Option<String>,
 }
 
 impl Model {
-    pub async fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
+    pub async fn new<P: AsRef<Path>>(path: P, pack_path: String) -> Result<Self, Error> {
         let bytes = fs::read(path.as_ref()).await?;
         let mut textures = HashMap::new();
+        let mut elements = Vec::new();
         if let Value::Object(root_object) = serde_json::from_slice(&*bytes)? {
             if let Some(Value::Object(textures_values)) = root_object.get("textures") {
                 for (key, value) in textures_values {
@@ -21,30 +32,55 @@ impl Model {
                     }
                 }
             }
+            if let Some(Value::Array(elements_value)) = root_object.get("elements") {
+                for value in elements_value {
+                    if let Some(element_object) = value.as_object() {
+                        let mut faces = HashMap::new();
+                        if let Some(Value::Object(faces_value)) = element_object.get("faces") {
+                            for (key, value) in faces_value {
+                                if let Some(face_object) = value.as_object() {
+                                    let texture = face_object
+                                        .get("texture")
+                                        .and_then(Value::as_str)
+                                        .and_then(|s| Some(s.to_string()));
+                                    faces.insert(key.to_string(), Face { texture });
+                                }
+                            }
+                        }
+                        elements.push(Element { faces })
+                    }
+                }
+            }
         }
-        Ok(Model { textures })
+        Ok(Model { pack_path, textures, elements })
     }
 }
 
 pub async fn get_models<P: AsRef<Path>>(path: P) -> Vec<Model> {
     let mut models: Vec<Model> = Vec::new();
     if let Ok(directory) = fs::read_dir(path).await {
-        get_models_recursion(directory, &mut models).await;
+        get_models_recursion(directory, Vec::new(), &mut models).await;
     }
     models
 }
 
 #[async_recursion]
-async fn get_models_recursion(mut directory: ReadDir, models: &mut Vec<Model>) {
+async fn get_models_recursion(mut directory: ReadDir,
+                              last_path: Vec<String>, models: &mut Vec<Model>) {
     while let Some(child) = directory.next_entry().await.unwrap() {
         if let Ok(child_meta) = child.metadata().await {
+            let file_name = child.file_name().to_str().unwrap().to_string();
+            let mut path = Vec::new();
+            path.extend_from_slice(&last_path);
+            path.push(file_name);
             if child_meta.is_dir() {
                 if let Ok(child_dir) = fs::read_dir(child.path()).await {
-                    get_models_recursion(child_dir, models).await
+                    get_models_recursion(child_dir, path,models).await
                 }
             } else if let Some(extension) = child.path().extension() {
                 if extension.eq_ignore_ascii_case("json") {
-                    if let Ok(model) = Model::new(child.path()).await {
+                    let join_path = path.join("/");
+                    if let Ok(model) = Model::new(child.path(), join_path.split_at(join_path.len() - 5).0.parse().unwrap()).await {
                         models.push(model)
                     }
                 }

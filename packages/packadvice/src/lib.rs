@@ -1,4 +1,5 @@
 mod font;
+mod missing_texture_model;
 mod model;
 mod namespace;
 mod pack;
@@ -7,6 +8,7 @@ mod result;
 mod texture;
 mod unused_texture;
 
+use crate::missing_texture_model::MissingTextureChecker;
 use crate::pack::Pack;
 use crate::pack_meta::PackMeta;
 use crate::result::PackResult;
@@ -63,9 +65,24 @@ impl PackAdviser {
                     .ok();
             }
 
+            // Check models with #missing in texture
+            let missing_texture_checker = MissingTextureChecker::new(&pack);
+            for missing_texture_model in &missing_texture_checker.models {
+                status_sender
+                    .send(PackAdviserStatus {
+                        path: missing_texture_model.to_string(),
+                        status_type: PackAdviserStatusType::Warn(
+                            "Textures contain #missing".to_string(),
+                        ),
+                    })
+                    .await
+                    .ok();
+            }
+
             Ok(PackResult {
                 pack_meta: pack.pack_meta,
                 unused_texture_checker,
+                missing_texture_checker,
             })
         })
     }

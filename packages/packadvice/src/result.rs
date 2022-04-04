@@ -1,5 +1,5 @@
 use crate::result::PackResultExportError::{NoFileType, UnsupportedFileType};
-use crate::{PackMeta, UnusedTextureChecker};
+use crate::{MissingTextureChecker, PackMeta, UnusedTextureChecker};
 use std::ffi::OsStr;
 use std::path::Path;
 use tokio::fs::File;
@@ -9,6 +9,7 @@ use tokio::io::AsyncWriteExt;
 pub struct PackResult {
     pub pack_meta: PackMeta,
     pub unused_texture_checker: UnusedTextureChecker,
+    pub missing_texture_checker: MissingTextureChecker,
 }
 
 impl PackResult {
@@ -37,6 +38,18 @@ impl PackResult {
                     .await?;
                     for texture in &self.unused_texture_checker.unused_textures {
                         file.write(format!(" - `{}`\n", texture).as_ref()).await?;
+                    }
+                    file.write(b"</details>\n").await?;
+                }
+                if !self.missing_texture_checker.models.is_empty() {
+                    file.write(
+                        b"# Models with #missing texture\n\
+                        <details>\n\
+                        <summary>List</summary>\n\n",
+                    )
+                    .await?;
+                    for model in &self.missing_texture_checker.models {
+                        file.write(format!(" - `{}`\n", model).as_ref()).await?;
                     }
                     file.write(b"</details>\n").await?;
                 }

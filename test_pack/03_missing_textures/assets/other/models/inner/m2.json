@@ -1,0 +1,9 @@
+{
+  "elements": [
+    {
+      "faces": {
+        "north": { "texture": "#missing" }
+      }
+    }
+  ]
+}
