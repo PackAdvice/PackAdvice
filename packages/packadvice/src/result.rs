@@ -29,10 +29,16 @@ impl PackResult {
                 )
                 .await?;
                 if !self.unused_texture_checker.unused_textures.is_empty() {
-                    file.write(b"# Unused textures\n").await?;
+                    file.write(
+                        b"# Unused textures\n\
+                        <details>\n\
+                        <summary>List</summary>\n\n",
+                    )
+                    .await?;
                     for texture in &self.unused_texture_checker.unused_textures {
-                        file.write(format!(" - {}\n", texture).as_ref()).await?;
+                        file.write(format!(" - `{}`\n", texture).as_ref()).await?;
                     }
+                    file.write(b"</details>\n").await?;
                 }
                 Ok(())
             }
