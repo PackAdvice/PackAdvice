@@ -4,7 +4,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
 jobs:
-  linux-x64-gnu:
+  linux-x64-musl:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -13,6 +13,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
+          target: x86_64-unknown-linux-musl
       - name: Build
         uses: actions-rs/cargo@v1
         with:
@@ -21,7 +22,7 @@ jobs:
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: 'PackAdvice executable (Linux, x64)'
+          name: 'PackAdvice executable (Linux, x64, musl)'
           path: target/release/packadvice
   windows-x64-gnu:
     runs-on: windows-latest
@@ -32,6 +33,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
+          target: x86_64-pc-windows-gnu
       - name: Build
         uses: actions-rs/cargo@v1
         with:
@@ -40,7 +42,7 @@ jobs:
       - name: Upload Binary
         uses: actions/upload-artifact@v2
         with:
-          name: 'PackAdvice executable (Windows, x64)'
+          name: 'PackAdvice executable (Windows, x64, gnu)'
           path: target/release/packadvice.exe
   macos-x64-darwin:
     runs-on: macos-latest
@@ -51,6 +53,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
+          target: x86_64-apple-darwin
       - name: Build
         uses: actions-rs/cargo@v1
         with:
