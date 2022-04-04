@@ -1,5 +1,5 @@
 use crate::result::PackResultExportError::{NoFileType, UnsupportedFileType};
-use crate::{MissingTextureChecker, PackMeta, UnusedTextureChecker};
+use crate::{MissingTextureChecker, Pack, UnusedTextureChecker};
 use std::ffi::OsStr;
 use std::path::Path;
 use tokio::fs::File;
@@ -7,7 +7,7 @@ use tokio::io;
 use tokio::io::AsyncWriteExt;
 
 pub struct PackResult {
-    pub pack_meta: PackMeta,
+    pub pack: Pack,
     pub unused_texture_checker: UnusedTextureChecker,
     pub missing_texture_checker: MissingTextureChecker,
 }
@@ -23,8 +23,8 @@ impl PackResult {
                         | Pack format | Minecraft version |\n\
                         |---|---|\n\
                         | {} | {} |\n\n",
-                        self.pack_meta.pack_format,
-                        self.pack_meta.minecraft_version()
+                        self.pack.pack_meta.pack_format,
+                        self.pack.pack_meta.minecraft_version()
                     )
                     .as_ref(),
                 )

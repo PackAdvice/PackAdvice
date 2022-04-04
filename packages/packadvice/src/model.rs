@@ -9,6 +9,7 @@ pub struct Model {
     pub pack_path: String,
     pub textures: HashMap<String, String>,
     pub elements: Vec<Element>,
+    pub overrides: Vec<Override>,
 }
 
 pub struct Element {
@@ -19,11 +20,21 @@ pub struct Face {
     pub texture: Option<String>,
 }
 
+pub struct Override {
+    pub predicate: Predicate,
+    pub model: Option<String>,
+}
+
+pub struct Predicate {
+    pub custom_model_data: Option<i64>,
+}
+
 impl Model {
     pub async fn new<P: AsRef<Path>>(path: P, pack_path: String) -> Result<Self, Error> {
         let bytes = fs::read(path.as_ref()).await?;
         let mut textures = HashMap::new();
         let mut elements = Vec::new();
+        let mut overrides = Vec::new();
         if let Value::Object(root_object) = serde_json::from_slice(&*bytes)? {
             if let Some(Value::Object(textures_values)) = root_object.get("textures") {
                 for (key, value) in textures_values {
@@ -51,8 +62,43 @@ impl Model {
                     }
                 }
             }
+            if let Some(Value::Array(overrides_value)) = root_object.get("overrides") {
+                for value in overrides_value {
+                    if let Some(override_value) = value.as_object() {
+                        let predicate = if let Some(Value::Object(predicate_value)) =
+                            override_value.get("predicate")
+                        {
+                            Predicate {
+                                custom_model_data: predicate_value
+                                    .get("custom_model_data")
+                                    .and_then(Value::as_i64),
+                            }
+                        } else {
+                            Predicate {
+                                custom_model_data: None,
+                            }
+                        };
+                        let model = override_value
+                            .get("model")
+                            .and_then(Value::as_str)
+                            .map(|s| {
+                                if s.contains(':') {
+                                    s.to_string()
+                                } else {
+                                    format!("minecraft:{}", s)
+                                }
+                            });
+                        overrides.push(Override { predicate, model })
+                    }
+                }
+            }
         }
-        Ok(Model { pack_path, textures, elements })
+        Ok(Model {
+            pack_path,
+            textures,
+            elements,
+            overrides,
+        })
     }
 }
 

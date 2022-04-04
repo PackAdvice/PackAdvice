@@ -80,7 +80,7 @@ impl PackAdviser {
             }
 
             Ok(PackResult {
-                pack_meta: pack.pack_meta,
+                pack,
                 unused_texture_checker,
                 missing_texture_checker,
             })
