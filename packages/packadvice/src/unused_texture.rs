@@ -29,10 +29,13 @@ impl UnusedTextureChecker {
                         let texture = if file.contains(':') {
                             format!("{}", Path::new(file.as_str()).with_extension("").display())
                         } else {
-                            format!("{}:{}", namespace.name, Path::new(file.as_str()).with_extension("").display())
+                            format!(
+                                "{}:{}",
+                                namespace.name,
+                                Path::new(file.as_str()).with_extension("").display()
+                            )
                         };
-                        unused_textures
-                            .retain(|t| t.as_str() != texture);
+                        unused_textures.retain(|t| t.as_str() != texture);
                     }
                 }
             }
@@ -43,8 +46,7 @@ impl UnusedTextureChecker {
                     } else {
                         format!("{}:{}", namespace.name, value)
                     };
-                    unused_textures
-                        .retain(|t| t.as_str() != texture);
+                    unused_textures.retain(|t| t.as_str() != texture);
                 }
             }
         }

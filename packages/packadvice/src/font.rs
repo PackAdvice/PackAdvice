@@ -1,15 +1,15 @@
-use std::path::Path;
 use async_recursion::async_recursion;
 use serde_json::Value;
-use tokio::{fs, io};
+use std::path::Path;
 use tokio::fs::ReadDir;
+use tokio::{fs, io};
 
 pub struct Font {
-    pub providers: Vec<Provider>
+    pub providers: Vec<Provider>,
 }
 
 pub struct Provider {
-    pub file: Option<String>
+    pub file: Option<String>,
 }
 
 impl Font {
@@ -29,9 +29,7 @@ impl Font {
                         } else {
                             None
                         };
-                        providers.push(Provider {
-                            file
-                        })
+                        providers.push(Provider { file })
                     }
                 }
             }

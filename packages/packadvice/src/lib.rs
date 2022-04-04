@@ -4,7 +4,6 @@ mod pack;
 mod pack_meta;
 mod texture;
 mod unused_texture;
-mod font;
 
 use crate::pack::Pack;
 use crate::pack_meta::PackMeta;
