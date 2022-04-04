@@ -63,7 +63,7 @@ fn _warn(message: &str) -> Result<()> {
 fn _trace(message: &str) -> Result<()> {
     let mut stdout = stdout();
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::White)))?;
-    writeln_with_emoji(&mut stdout, "🏁", "trace", message)
+    writeln_with_emoji(&mut stdout, "🏁", "#", message)
 }
 
 fn writeln_with_emoji(
@@ -72,12 +72,14 @@ fn writeln_with_emoji(
     fallback: &str,
     message: &str,
 ) -> Result<()> {
-    writeln!(
+    write!(
         stream,
         "{} {}",
         Emoji::new(emoji, fallback),
         message.replace('\n', Emoji::new("\n   ", "\n  ").string())
-    )
+    )?;
+    stream.reset()?;
+    writeln!(stream)
 }
 
 fn stdout() -> StandardStream {
