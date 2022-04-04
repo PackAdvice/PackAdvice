@@ -39,7 +39,7 @@ impl PackResult {
                     for texture in &self.unused_texture_checker.unused_textures {
                         file.write(format!(" - `{}`\n", texture).as_ref()).await?;
                     }
-                    file.write(b"</details>\n").await?;
+                    file.write(b"</details>\n\n").await?;
                 }
                 if !self.missing_texture_checker.models.is_empty() {
                     file.write(
@@ -51,7 +51,7 @@ impl PackResult {
                     for model in &self.missing_texture_checker.models {
                         file.write(format!(" - `{}`\n", model).as_ref()).await?;
                     }
-                    file.write(b"</details>\n").await?;
+                    file.write(b"</details>\n\n").await?;
                 }
                 Ok(())
             }
