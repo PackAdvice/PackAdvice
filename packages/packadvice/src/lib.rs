@@ -1,12 +1,15 @@
+mod font;
 mod model;
 mod namespace;
 mod pack;
 mod pack_meta;
+mod result;
 mod texture;
 mod unused_texture;
 
 use crate::pack::Pack;
 use crate::pack_meta::PackMeta;
+use crate::result::PackResult;
 use crate::unused_texture::UnusedTextureChecker;
 use std::path::PathBuf;
 use tokio::runtime::Runtime;
@@ -25,7 +28,7 @@ impl PackAdviser {
         &self,
         options: PackOptions,
         status_sender: Sender<PackAdviserStatus>,
-    ) -> Result<(), PackAdviserError> {
+    ) -> Result<PackResult, PackAdviserError> {
         let runtime = Runtime::new().unwrap();
         runtime.block_on(async {
             // Check the pack directory exists
@@ -48,10 +51,10 @@ impl PackAdviser {
 
             // Check unused textures
             let unused_texture_checker = UnusedTextureChecker::new(&pack);
-            for unused_texture in unused_texture_checker.sorted_unused_textures() {
+            for unused_texture in &unused_texture_checker.unused_textures {
                 status_sender
                     .send(PackAdviserStatus {
-                        path: unused_texture,
+                        path: unused_texture.to_string(),
                         status_type: PackAdviserStatusType::Warn(
                             "Unused texture in model".to_string(),
                         ),
@@ -60,7 +63,10 @@ impl PackAdviser {
                     .ok();
             }
 
-            Ok(())
+            Ok(PackResult {
+                pack_meta: pack.pack_meta,
+                unused_texture_checker,
+            })
         })
     }
 }

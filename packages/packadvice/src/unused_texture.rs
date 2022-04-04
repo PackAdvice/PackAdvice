@@ -3,23 +3,15 @@ use std::collections::HashSet;
 use std::path::Path;
 
 pub struct UnusedTextureChecker {
-    pub unused_textures: HashSet<String>,
-}
-
-impl UnusedTextureChecker {
-    pub fn sorted_unused_textures(self) -> Vec<String> {
-        let mut vec = Vec::from_iter(self.unused_textures);
-        vec.sort();
-        vec
-    }
+    pub unused_textures: Vec<String>,
 }
 
 impl UnusedTextureChecker {
     pub fn new(pack: &Pack) -> Self {
-        let mut unused_textures = HashSet::new();
+        let mut textures = HashSet::new();
         for namespace in &pack.namespaces {
             for texture in &namespace.textures {
-                unused_textures.insert(format!("{}:{}", namespace.name, texture.path));
+                textures.insert(format!("{}:{}", namespace.name, texture.path));
             }
         }
         for namespace in &pack.namespaces {
@@ -35,7 +27,7 @@ impl UnusedTextureChecker {
                                 Path::new(file.as_str()).with_extension("").display()
                             )
                         };
-                        unused_textures.retain(|t| t.as_str() != texture);
+                        textures.retain(|t| t.as_str() != texture);
                     }
                 }
             }
@@ -46,10 +38,12 @@ impl UnusedTextureChecker {
                     } else {
                         format!("{}:{}", namespace.name, value)
                     };
-                    unused_textures.retain(|t| t.as_str() != texture);
+                    textures.retain(|t| t.as_str() != texture);
                 }
             }
         }
+        let mut unused_textures = Vec::from_iter(textures);
+        unused_textures.sort();
         UnusedTextureChecker { unused_textures }
     }
 }
