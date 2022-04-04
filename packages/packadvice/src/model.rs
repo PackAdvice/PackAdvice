@@ -42,7 +42,7 @@ impl Model {
                                     let texture = face_object
                                         .get("texture")
                                         .and_then(Value::as_str)
-                                        .and_then(|s| Some(s.to_string()));
+                                        .map(|s| s.to_string());
                                     faces.insert(key.to_string(), Face { texture });
                                 }
                             }
@@ -65,8 +65,11 @@ pub async fn get_models<P: AsRef<Path>>(path: P) -> Vec<Model> {
 }
 
 #[async_recursion]
-async fn get_models_recursion(mut directory: ReadDir,
-                              last_path: Vec<String>, models: &mut Vec<Model>) {
+async fn get_models_recursion(
+    mut directory: ReadDir,
+    last_path: Vec<String>,
+    models: &mut Vec<Model>,
+) {
     while let Some(child) = directory.next_entry().await.unwrap() {
         if let Ok(child_meta) = child.metadata().await {
             let file_name = child.file_name().to_str().unwrap().to_string();
@@ -75,12 +78,17 @@ async fn get_models_recursion(mut directory: ReadDir,
             path.push(file_name);
             if child_meta.is_dir() {
                 if let Ok(child_dir) = fs::read_dir(child.path()).await {
-                    get_models_recursion(child_dir, path,models).await
+                    get_models_recursion(child_dir, path, models).await
                 }
             } else if let Some(extension) = child.path().extension() {
                 if extension.eq_ignore_ascii_case("json") {
                     let join_path = path.join("/");
-                    if let Ok(model) = Model::new(child.path(), join_path.split_at(join_path.len() - 5).0.parse().unwrap()).await {
+                    if let Ok(model) = Model::new(
+                        child.path(),
+                        join_path.split_at(join_path.len() - 5).0.parse().unwrap(),
+                    )
+                    .await
+                    {
                         models.push(model)
                     }
                 }
