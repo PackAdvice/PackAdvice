@@ -22,8 +22,7 @@ impl UnusedTextureChecker {
                             format!("{}", Path::new(file.as_str()).with_extension("").display())
                         } else {
                             format!(
-                                "{}:{}",
-                                namespace.name,
+                                "minecraft:{}",
                                 Path::new(file.as_str()).with_extension("").display()
                             )
                         };
@@ -36,7 +35,7 @@ impl UnusedTextureChecker {
                     let texture = if value.contains(':') {
                         value.to_string()
                     } else {
-                        format!("{}:{}", namespace.name, value)
+                        format!("minecraft:{}", value)
                     };
                     textures.retain(|t| t.as_str() != texture);
                 }
