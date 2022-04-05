@@ -15,7 +15,7 @@ impl MissingTextureChecker {
                     for face in element.faces.values() {
                         if let Some(texture) = &face.texture {
                             if texture == "#missing" {
-                                models.insert(format!("{}:{}", namespace.name, model.pack_path));
+                                models.insert(format!("{}:{}", namespace.name, model.path));
                             }
                         }
                     }

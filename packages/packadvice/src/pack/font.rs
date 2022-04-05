@@ -13,22 +13,17 @@ pub struct Provider {
 }
 
 impl Font {
-    pub async fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
-        let bytes = fs::read(path.as_ref()).await?;
+    pub async fn new<P: AsRef<Path>>(file_path: P) -> Result<Self, Error> {
+        let bytes = fs::read(file_path.as_ref()).await?;
         let mut providers = Vec::new();
         if let Value::Object(root_object) = serde_json::from_slice(&*bytes)? {
             if let Some(Value::Array(providers_values)) = root_object.get("providers") {
                 for provider in providers_values {
                     if provider.is_object() {
-                        let file = if let Some(file) = provider.get("file") {
-                            if file.is_string() {
-                                Some(file.as_str().unwrap().to_string())
-                            } else {
-                                None
-                            }
-                        } else {
-                            None
-                        };
+                        let file = provider
+                            .get("file")
+                            .and_then(Value::as_str)
+                            .map(&str::to_string);
                         providers.push(Provider { file })
                     }
                 }

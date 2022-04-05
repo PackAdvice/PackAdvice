@@ -6,7 +6,7 @@ use tokio::fs::ReadDir;
 use tokio::{fs, io};
 
 pub struct Model {
-    pub pack_path: String,
+    pub path: String,
     pub parent: Option<String>,
     pub textures: HashMap<String, String>,
     pub elements: Vec<Element>,
@@ -31,8 +31,8 @@ pub struct Predicate {
 }
 
 impl Model {
-    pub async fn new<P: AsRef<Path>>(path: P, pack_path: String) -> Result<Self, Error> {
-        let bytes = fs::read(path.as_ref()).await?;
+    pub async fn new<P: AsRef<Path>>(file_path: P, path: String) -> Result<Self, Error> {
+        let bytes = fs::read(file_path.as_ref()).await?;
         let mut parent = None;
         let mut textures = HashMap::new();
         let mut elements = Vec::new();
@@ -103,7 +103,7 @@ impl Model {
             }
         }
         Ok(Model {
-            pack_path,
+            path,
             parent,
             textures,
             elements,

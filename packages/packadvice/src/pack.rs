@@ -1,9 +1,9 @@
+mod blockstate;
 pub mod font;
 pub mod model;
 pub mod namespace;
 pub mod pack_meta;
 pub mod texture;
-mod blockstate;
 
 use crate::pack::namespace::{get_namespaces, Namespace};
 use crate::pack::pack_meta::PackMeta;

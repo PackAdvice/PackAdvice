@@ -11,12 +11,12 @@ impl UnreferencedModelChecker {
         let mut models = HashSet::new();
         for namespace in &pack.namespaces {
             for model in &namespace.models {
-                models.insert(format!("{}:{}", namespace.name, model.pack_path));
+                models.insert(format!("{}:{}", namespace.name, model.path));
             }
         }
         for namespace in &pack.namespaces {
             for blockstate in &namespace.blockstates {
-                for (_, variant) in &blockstate.variants {
+                for variant in blockstate.variants.values() {
                     if let Some(model) = &variant.model {
                         models.remove(model);
                     }

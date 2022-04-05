@@ -1,22 +1,22 @@
 use async_recursion::async_recursion;
+use serde_json::Value;
 use std::collections::HashMap;
 use std::path::Path;
-use serde_json::Value;
-use tokio::{fs, io};
 use tokio::fs::ReadDir;
+use tokio::{fs, io};
 
 pub struct BlockState {
-    pub pack_path: String,
-    pub variants: HashMap<String, Variant>
+    pub path: String,
+    pub variants: HashMap<String, Variant>,
 }
 
 pub struct Variant {
-    pub model: Option<String>
+    pub model: Option<String>,
 }
 
 impl BlockState {
-    pub async fn new<P: AsRef<Path>>(path: P, pack_path: String) -> Result<Self, Error> {
-        let bytes = fs::read(path.as_ref()).await?;
+    pub async fn new<P: AsRef<Path>>(file_path: P, path: String) -> Result<Self, Error> {
+        let bytes = fs::read(file_path.as_ref()).await?;
         let mut variants = HashMap::new();
         if let Value::Object(root_object) = serde_json::from_slice(&*bytes)? {
             if let Some(Value::Object(textures_values)) = root_object.get("variants") {
@@ -34,7 +34,7 @@ impl BlockState {
                 }
             }
         }
-        Ok(BlockState { pack_path, variants })
+        Ok(BlockState { path, variants })
     }
 }
 
@@ -69,7 +69,7 @@ async fn get_blockstates_recursion(
                         child.path(),
                         join_path.split_at(join_path.len() - 5).0.parse().unwrap(),
                     )
-                        .await
+                    .await
                     {
                         models.push(model)
                     }

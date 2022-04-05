@@ -1,9 +1,9 @@
+use crate::pack::blockstate::{get_blockstates, BlockState};
 use crate::pack::font::{get_fonts, Font};
 use crate::pack::model::{get_models, Model};
 use crate::pack::texture::{get_textures, Texture};
 use std::path::{Path, PathBuf};
 use tokio::fs::ReadDir;
-use crate::pack::blockstate::{BlockState, get_blockstates};
 
 pub struct Namespace {
     pub name: String,
