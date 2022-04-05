@@ -1,0 +1,90 @@
+use async_recursion::async_recursion;
+use std::collections::HashMap;
+use std::path::Path;
+use serde_json::Value;
+use tokio::{fs, io};
+use tokio::fs::ReadDir;
+
+pub struct BlockState {
+    pub pack_path: String,
+    pub variants: HashMap<String, Variant>
+}
+
+pub struct Variant {
+    pub model: Option<String>
+}
+
+impl BlockState {
+    pub async fn new<P: AsRef<Path>>(path: P, pack_path: String) -> Result<Self, Error> {
+        let bytes = fs::read(path.as_ref()).await?;
+        let mut variants = HashMap::new();
+        if let Value::Object(root_object) = serde_json::from_slice(&*bytes)? {
+            if let Some(Value::Object(textures_values)) = root_object.get("variants") {
+                for (key, value) in textures_values {
+                    if let Some(variants_value) = value.as_object() {
+                        if let Some(Value::String(model_value)) = variants_value.get("model") {
+                            let model = if model_value.contains(':') {
+                                Some(model_value.as_str().to_string())
+                            } else {
+                                Some(format!("minecraft:{}", model_value))
+                            };
+                            variants.insert(key.as_str().to_string(), Variant { model });
+                        }
+                    }
+                }
+            }
+        }
+        Ok(BlockState { pack_path, variants })
+    }
+}
+
+pub async fn get_blockstates<P: AsRef<Path>>(path: P) -> Vec<BlockState> {
+    let mut models: Vec<BlockState> = Vec::new();
+    if let Ok(directory) = fs::read_dir(path).await {
+        get_blockstates_recursion(directory, Vec::new(), &mut models).await;
+    }
+    models
+}
+
+#[async_recursion]
+async fn get_blockstates_recursion(
+    mut directory: ReadDir,
+    last_path: Vec<String>,
+    models: &mut Vec<BlockState>,
+) {
+    while let Some(child) = directory.next_entry().await.unwrap() {
+        if let Ok(child_meta) = child.metadata().await {
+            let file_name = child.file_name().to_str().unwrap().to_string();
+            let mut path = Vec::new();
+            path.extend_from_slice(&last_path);
+            path.push(file_name);
+            if child_meta.is_dir() {
+                if let Ok(child_dir) = fs::read_dir(child.path()).await {
+                    get_blockstates_recursion(child_dir, path, models).await
+                }
+            } else if let Some(extension) = child.path().extension() {
+                if extension.eq_ignore_ascii_case("json") {
+                    let join_path = path.join("/");
+                    if let Ok(model) = BlockState::new(
+                        child.path(),
+                        join_path.split_at(join_path.len() - 5).0.parse().unwrap(),
+                    )
+                        .await
+                    {
+                        models.push(model)
+                    }
+                }
+            }
+        }
+    }
+}
+
+#[derive(thiserror::Error, Debug)]
+#[allow(clippy::enum_variant_names)]
+pub enum Error {
+    #[error("I/O error: {0}")]
+    IoError(#[from] io::Error),
+
+    #[error("Json error: {0}")]
+    JsonError(#[from] serde_json::Error),
+}

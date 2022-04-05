@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "other:m4"
+    }
+  }
+}

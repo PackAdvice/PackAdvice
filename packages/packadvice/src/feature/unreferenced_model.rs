@@ -15,6 +15,13 @@ impl UnreferencedModelChecker {
             }
         }
         for namespace in &pack.namespaces {
+            for blockstate in &namespace.blockstates {
+                for (_, variant) in &blockstate.variants {
+                    if let Some(model) = &variant.model {
+                        models.remove(model);
+                    }
+                }
+            }
             for model in &namespace.models {
                 if let Some(parent) = &model.parent {
                     models.remove(parent);
