@@ -1,3 +1,4 @@
+use crate::minecraft_path;
 use async_recursion::async_recursion;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -39,11 +40,7 @@ impl Model {
         let mut overrides = Vec::new();
         if let Value::Object(root_object) = serde_json::from_slice(&*bytes)? {
             if let Some(Value::String(parent_value)) = root_object.get("parent") {
-                if parent_value.contains(':') {
-                    parent = Some(parent_value.as_str().to_string())
-                } else {
-                    parent = Some(format!("minecraft:{}", parent_value))
-                }
+                parent = Some(minecraft_path!(parent_value))
             }
             if let Some(Value::Object(textures_values)) = root_object.get("textures") {
                 for (key, value) in textures_values {
@@ -90,13 +87,7 @@ impl Model {
                         let model = override_value
                             .get("model")
                             .and_then(Value::as_str)
-                            .map(|s| {
-                                if s.contains(':') {
-                                    s.to_string()
-                                } else {
-                                    format!("minecraft:{}", s)
-                                }
-                            });
+                            .map(|s| minecraft_path!(s));
                         overrides.push(Override { predicate, model })
                     }
                 }

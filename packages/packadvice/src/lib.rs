@@ -1,6 +1,7 @@
 mod feature;
 mod pack;
 mod result;
+mod util;
 
 use crate::feature::missing_texture_model::MissingTextureChecker;
 use crate::feature::unreferenced_model::UnreferencedModelChecker;

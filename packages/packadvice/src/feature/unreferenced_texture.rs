@@ -1,4 +1,4 @@
-use crate::Pack;
+use crate::{minecraft_path, Pack};
 use std::collections::HashSet;
 use std::path::Path;
 
@@ -12,32 +12,24 @@ impl UnreferencedTextureChecker {
         let mut textures = HashSet::new();
         for namespace in &pack.namespaces {
             for texture in &namespace.textures {
-                textures.insert(format!("{}:{}", namespace.name, texture.path));
+                textures.insert(minecraft_path!(namespace.name, texture.path));
             }
         }
         for namespace in &pack.namespaces {
             for font in &namespace.fonts {
                 for provider in &font.providers {
                     if let Some(file) = &provider.file {
-                        let texture = if file.contains(':') {
-                            format!("{}", Path::new(file.as_str()).with_extension("").display())
-                        } else {
-                            format!(
-                                "minecraft:{}",
-                                Path::new(file.as_str()).with_extension("").display()
-                            )
-                        };
+                        let texture = minecraft_path!(Path::new(file.as_str())
+                            .with_extension("")
+                            .display()
+                            .to_string());
                         textures.retain(|t| t.as_str() != texture);
                     }
                 }
             }
             for model in &namespace.models {
                 for value in model.textures.values() {
-                    let texture = if value.contains(':') {
-                        value.to_string()
-                    } else {
-                        format!("minecraft:{}", value)
-                    };
+                    let texture = minecraft_path!(value);
                     textures.retain(|t| t.as_str() != texture);
                 }
             }

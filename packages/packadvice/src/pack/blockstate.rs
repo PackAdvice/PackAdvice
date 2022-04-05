@@ -1,3 +1,4 @@
+use crate::minecraft_path;
 use async_recursion::async_recursion;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -23,11 +24,7 @@ impl BlockState {
                 for (key, value) in textures_values {
                     if let Some(variants_value) = value.as_object() {
                         if let Some(Value::String(model_value)) = variants_value.get("model") {
-                            let model = if model_value.contains(':') {
-                                Some(model_value.as_str().to_string())
-                            } else {
-                                Some(format!("minecraft:{}", model_value))
-                            };
+                            let model = Some(minecraft_path!(model_value));
                             variants.insert(key.as_str().to_string(), Variant { model });
                         }
                     }
