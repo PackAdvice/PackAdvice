@@ -2,14 +2,15 @@ mod feature;
 mod pack;
 mod result;
 
-use crate::pack::{Pack, pack_meta};
+use crate::feature::missing_texture_model::MissingTextureChecker;
+use crate::feature::unreferenced_model::UnreferencedModelChecker;
+use crate::feature::unreferenced_texture::UnreferencedTextureChecker;
+use crate::pack::{pack_meta, Pack};
 use crate::result::PackResult;
 use std::path::PathBuf;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::Sender;
 use tokio::{fs, io};
-use crate::feature::missing_texture_model::MissingTextureChecker;
-use crate::feature::unreferenced_texture::UnreferencedTextureChecker;
 
 #[derive(Default)]
 pub struct PackAdviser;
@@ -58,6 +59,18 @@ impl PackAdviser {
                     .ok();
             }
 
+            // Check unreferenced models
+            let unreferenced_model_checker = UnreferencedModelChecker::new(&pack);
+            for model in &unreferenced_model_checker.models {
+                status_sender
+                    .send(PackAdviserStatus {
+                        path: model.to_string(),
+                        status_type: PackAdviserStatusType::Warn("Unreferenced model".to_string()),
+                    })
+                    .await
+                    .ok();
+            }
+
             // Check models with #missing in texture
             let missing_texture_checker = MissingTextureChecker::new(&pack);
             for missing_texture_model in &missing_texture_checker.models {
@@ -75,6 +88,7 @@ impl PackAdviser {
             Ok(PackResult {
                 pack,
                 unreferenced_texture_checker,
+                unreferenced_model_checker,
                 missing_texture_checker,
             })
         })

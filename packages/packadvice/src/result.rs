@@ -1,14 +1,16 @@
+use crate::feature::unreferenced_model::UnreferencedModelChecker;
 use crate::result::PackResultExportError::{NoFileType, UnsupportedFileType};
+use crate::{MissingTextureChecker, Pack, UnreferencedTextureChecker};
 use std::ffi::OsStr;
 use std::path::Path;
 use tokio::fs::File;
 use tokio::io;
 use tokio::io::AsyncWriteExt;
-use crate::{MissingTextureChecker, Pack, UnreferencedTextureChecker};
 
 pub struct PackResult {
     pub pack: Pack,
     pub unreferenced_texture_checker: UnreferencedTextureChecker,
+    pub unreferenced_model_checker: UnreferencedModelChecker,
     pub missing_texture_checker: MissingTextureChecker,
 }
 
@@ -37,6 +39,18 @@ impl PackResult {
                     )
                     .await?;
                     for texture in &self.unreferenced_texture_checker.textures {
+                        file.write(format!(" - `{}`\n", texture).as_ref()).await?;
+                    }
+                    file.write(b"</details>\n\n").await?;
+                }
+                if !self.unreferenced_model_checker.models.is_empty() {
+                    file.write(
+                        b"# Unreferenced models\n\
+                        <details>\n\
+                        <summary>List</summary>\n\n",
+                    )
+                    .await?;
+                    for texture in &self.unreferenced_model_checker.models {
                         file.write(format!(" - `{}`\n", texture).as_ref()).await?;
                     }
                     file.write(b"</details>\n\n").await?;
