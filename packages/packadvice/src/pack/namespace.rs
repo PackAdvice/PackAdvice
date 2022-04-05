@@ -1,6 +1,6 @@
-use crate::font::{get_fonts, Font};
-use crate::model::{get_models, Model};
-use crate::texture::{get_textures, Texture};
+use crate::pack::font::{get_fonts, Font};
+use crate::pack::model::{get_models, Model};
+use crate::pack::texture::{get_textures, Texture};
 use std::path::{Path, PathBuf};
 use tokio::fs::ReadDir;
 

@@ -1,5 +1,11 @@
-use crate::namespace::{get_namespaces, Namespace};
-use crate::{pack_meta, PackMeta};
+pub mod font;
+pub mod model;
+pub mod namespace;
+pub mod pack_meta;
+pub mod texture;
+
+use crate::pack::namespace::{get_namespaces, Namespace};
+use crate::pack::pack_meta::PackMeta;
 use std::path::Path;
 use tokio::fs;
 

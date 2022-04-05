@@ -1,14 +1,14 @@
 use crate::result::PackResultExportError::{NoFileType, UnsupportedFileType};
-use crate::{MissingTextureChecker, Pack, UnusedTextureChecker};
 use std::ffi::OsStr;
 use std::path::Path;
 use tokio::fs::File;
 use tokio::io;
 use tokio::io::AsyncWriteExt;
+use crate::{MissingTextureChecker, Pack, UnreferencedTextureChecker};
 
 pub struct PackResult {
     pub pack: Pack,
-    pub unused_texture_checker: UnusedTextureChecker,
+    pub unreferenced_texture_checker: UnreferencedTextureChecker,
     pub missing_texture_checker: MissingTextureChecker,
 }
 
@@ -29,14 +29,14 @@ impl PackResult {
                     .as_ref(),
                 )
                 .await?;
-                if !self.unused_texture_checker.unused_textures.is_empty() {
+                if !self.unreferenced_texture_checker.textures.is_empty() {
                     file.write(
                         b"# Unused textures\n\
                         <details>\n\
                         <summary>List</summary>\n\n",
                     )
                     .await?;
-                    for texture in &self.unused_texture_checker.unused_textures {
+                    for texture in &self.unreferenced_texture_checker.textures {
                         file.write(format!(" - `{}`\n", texture).as_ref()).await?;
                     }
                     file.write(b"</details>\n\n").await?;

@@ -2,11 +2,12 @@ use crate::Pack;
 use std::collections::HashSet;
 use std::path::Path;
 
-pub struct UnusedTextureChecker {
-    pub unused_textures: Vec<String>,
+pub struct UnreferencedTextureChecker {
+    /// Textures not used in models or fonts
+    pub textures: Vec<String>,
 }
 
-impl UnusedTextureChecker {
+impl UnreferencedTextureChecker {
     pub fn new(pack: &Pack) -> Self {
         let mut textures = HashSet::new();
         for namespace in &pack.namespaces {
@@ -41,8 +42,8 @@ impl UnusedTextureChecker {
                 }
             }
         }
-        let mut unused_textures = Vec::from_iter(textures);
-        unused_textures.sort();
-        UnusedTextureChecker { unused_textures }
+        let mut textures = Vec::from_iter(textures);
+        textures.sort();
+        UnreferencedTextureChecker { textures }
     }
 }

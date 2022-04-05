@@ -1,22 +1,15 @@
-mod font;
-mod missing_texture_model;
-mod model;
-mod namespace;
+mod feature;
 mod pack;
-mod pack_meta;
 mod result;
-mod texture;
-mod unused_texture;
 
-use crate::missing_texture_model::MissingTextureChecker;
-use crate::pack::Pack;
-use crate::pack_meta::PackMeta;
+use crate::pack::{Pack, pack_meta};
 use crate::result::PackResult;
-use crate::unused_texture::UnusedTextureChecker;
 use std::path::PathBuf;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::Sender;
 use tokio::{fs, io};
+use crate::feature::missing_texture_model::MissingTextureChecker;
+use crate::feature::unreferenced_texture::UnreferencedTextureChecker;
 
 #[derive(Default)]
 pub struct PackAdviser;
@@ -52,11 +45,11 @@ impl PackAdviser {
                 .ok();
 
             // Check unused textures
-            let unused_texture_checker = UnusedTextureChecker::new(&pack);
-            for unused_texture in &unused_texture_checker.unused_textures {
+            let unreferenced_texture_checker = UnreferencedTextureChecker::new(&pack);
+            for texture in &unreferenced_texture_checker.textures {
                 status_sender
                     .send(PackAdviserStatus {
-                        path: unused_texture.to_string(),
+                        path: texture.to_string(),
                         status_type: PackAdviserStatusType::Warn(
                             "Unused texture in model".to_string(),
                         ),
@@ -81,7 +74,7 @@ impl PackAdviser {
 
             Ok(PackResult {
                 pack,
-                unused_texture_checker,
+                unreferenced_texture_checker,
                 missing_texture_checker,
             })
         })
