@@ -34,6 +34,8 @@ impl PackResult {
                 if !self.unreferenced_texture_checker.textures.is_empty() {
                     file.write(
                         b"# Unused textures\n\
+                        The following files are not used in any model or font.\
+                        Please consider these as they may be removed. (However, it does not yet support vanilla textures.)\n\
                         <details>\n\
                         <summary>List</summary>\n\n",
                     )
@@ -46,6 +48,8 @@ impl PackResult {
                 if !self.unreferenced_model_checker.models.is_empty() {
                     file.write(
                         b"# Unreferenced models\n\
+                        The following files are not used in any model parent or model override.\
+                        Please consider these as they may be removed. (However, it does not yet support vanilla models.)\n\
                         <details>\n\
                         <summary>List</summary>\n\n",
                     )
@@ -58,6 +62,7 @@ impl PackResult {
                 if !self.missing_texture_checker.models.is_empty() {
                     file.write(
                         b"# Models that contain #missing texture\n\
+                        The following files have cubes that have not been assigned textures.\n\
                         <details>\n\
                         <summary>List</summary>\n\n",
                     )
