@@ -23,10 +23,11 @@ impl BlockState {
             if let Some(Value::Object(textures_values)) = root_object.get("variants") {
                 for (key, value) in textures_values {
                     if let Some(variants_value) = value.as_object() {
-                        if let Some(Value::String(model_value)) = variants_value.get("model") {
-                            let model = Some(minecraft_path!(model_value));
-                            variants.insert(key.as_str().to_string(), Variant { model });
-                        }
+                        let model = variants_value
+                            .get("model")
+                            .and_then(Value::as_str)
+                            .map(|s| minecraft_path!(s));
+                        variants.insert(key.as_str().to_string(), Variant { model });
                     }
                 }
             }

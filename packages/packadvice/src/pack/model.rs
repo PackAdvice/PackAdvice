@@ -39,9 +39,10 @@ impl Model {
         let mut elements = Vec::new();
         let mut overrides = Vec::new();
         if let Value::Object(root_object) = serde_json::from_slice(&*bytes)? {
-            if let Some(Value::String(parent_value)) = root_object.get("parent") {
-                parent = Some(minecraft_path!(parent_value))
-            }
+            parent = root_object
+                .get("parent")
+                .and_then(Value::as_str)
+                .map(|s| minecraft_path!(s));
             if let Some(Value::Object(textures_values)) = root_object.get("textures") {
                 for (key, value) in textures_values {
                     if value.is_string() {
