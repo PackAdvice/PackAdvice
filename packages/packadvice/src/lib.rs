@@ -79,7 +79,7 @@ impl PackAdviser {
                     .send(PackAdviserStatus {
                         path: missing_texture_model.to_string(),
                         status_type: PackAdviserStatusType::Warn(
-                            "Textures contain #missing".to_string(),
+                            "Texture contains #missing".to_string(),
                         ),
                     })
                     .await
