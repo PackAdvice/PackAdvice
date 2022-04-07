@@ -11,3 +11,7 @@ A CLI tool that provides advice for improving the Minecraft Java Edition resourc
 - Suggestions to modify models that contain `#missing` textures.
 
 If you have a good idea, please let me know on [issue](https://github.com/PackAdvice/PackAdvice/issues/new?template=new-feature.md).
+
+## 💼 License
+
+This software is released under the MIT License, see [LICENSE](LICENSE).

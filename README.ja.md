@@ -11,3 +11,7 @@ Minecraft Java Edition のリソースパックに対して改善案を教えて
 - `#missing` テクスチャを含むモデルの修正提案
 
 良いアイデアがあれば、[issue](https://github.com/PackAdvice/PackAdvice/issues/new?template=new-feature.md) で教えてください。
+
+## 💼 ライセンス
+
+このソフトウェアは、MIT ライセンスのもとで公開されています。詳しくは [LICENSE](LICENSE) を見てください。
