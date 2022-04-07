@@ -10,4 +10,4 @@ A CLI tool that provides advice for improving the Minecraft Java Edition resourc
 - Suggestions to remove models that are not used in any model(parent, overrides) or blockstate. (Vanilla override models are not yet supported.)
 - Suggestions to modify models that contain `#missing` textures.
 
-If you have a good idea, please let me know on [issue](https://github.com/sya-ri/PackAdvice/issues/new?template=new-feature.md).
+If you have a good idea, please let me know on [issue](https://github.com/PackAdvice/PackAdvice/issues/new?template=new-feature.md).

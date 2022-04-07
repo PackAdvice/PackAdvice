@@ -10,4 +10,4 @@ Minecraft Java Edition のリソースパックに対して改善案を教えて
 - どのモデル(parent, overrides)やblockstateでも使用されていないモデルの削除提案 (バニラモデルにはまだ対応していません。)
 - `#missing` テクスチャを含むモデルの修正提案
 
-良いアイデアがあれば、[issue](https://github.com/sya-ri/PackAdvice/issues/new?template=new-feature.md) で教えてください。
+良いアイデアがあれば、[issue](https://github.com/PackAdvice/PackAdvice/issues/new?template=new-feature.md) で教えてください。
