@@ -1,4 +1,4 @@
-use crate::{minecraft_path, Pack};
+use crate::{pack_path, Pack};
 use std::collections::HashSet;
 
 pub struct MissingTextureChecker {
@@ -15,7 +15,7 @@ impl MissingTextureChecker {
                     for face in element.faces.values() {
                         if let Some(texture) = &face.texture {
                             if texture == "#missing" {
-                                models.insert(minecraft_path!(namespace.name, model.path));
+                                models.insert(pack_path!(namespace.name, model.path));
                             }
                         }
                     }

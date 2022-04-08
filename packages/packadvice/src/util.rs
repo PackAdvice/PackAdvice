@@ -1,5 +1,5 @@
 #[macro_export]
-macro_rules! minecraft_path {
+macro_rules! pack_path {
     ($namespace:expr, $path:expr) => {
         if $path.contains(':') {
             $path.to_string()
@@ -8,6 +8,6 @@ macro_rules! minecraft_path {
         }
     };
     ($path:expr) => {
-        minecraft_path!("minecraft", $path)
+        pack_path!("minecraft", $path)
     };
 }

@@ -1,4 +1,4 @@
-use crate::minecraft_path;
+use crate::pack_path;
 use async_recursion::async_recursion;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -26,7 +26,7 @@ impl BlockState {
                         let model = variants_value
                             .get("model")
                             .and_then(Value::as_str)
-                            .map(|s| minecraft_path!(s));
+                            .map(|s| pack_path!(s));
                         variants.insert(key.as_str().to_string(), Variant { model });
                     }
                 }

@@ -1,4 +1,4 @@
-use crate::{minecraft_path, Pack};
+use crate::{pack_path, Pack};
 use std::collections::HashSet;
 
 pub struct UnreferencedModelChecker {
@@ -11,7 +11,7 @@ impl UnreferencedModelChecker {
         let mut models = HashSet::new();
         for namespace in &pack.namespaces {
             for model in &namespace.models {
-                models.insert(minecraft_path!(namespace.name, model.path));
+                models.insert(pack_path!(namespace.name, model.path));
             }
         }
         for namespace in &pack.namespaces {

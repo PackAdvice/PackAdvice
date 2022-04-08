@@ -1,4 +1,4 @@
-use crate::minecraft_path;
+use crate::pack_path;
 use async_recursion::async_recursion;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -42,7 +42,7 @@ impl Model {
             parent = root_object
                 .get("parent")
                 .and_then(Value::as_str)
-                .map(|s| minecraft_path!(s));
+                .map(|s| pack_path!(s));
             if let Some(Value::Object(textures_values)) = root_object.get("textures") {
                 for (key, value) in textures_values {
                     if value.is_string() {
@@ -88,7 +88,7 @@ impl Model {
                         let model = override_value
                             .get("model")
                             .and_then(Value::as_str)
-                            .map(|s| minecraft_path!(s));
+                            .map(|s| pack_path!(s));
                         overrides.push(Override { predicate, model })
                     }
                 }
