@@ -76,7 +76,7 @@ impl PackResult {
                 }
                 if !self.model_elements_counter.models.is_empty() {
                     file.write(
-                        b"# List of models and number of elements\n\
+                        b"# List of model and element amount\n\
                         Too many elements will affect rendering.\n\
                         <details>\n\
                         <summary>List</summary>\n\n\

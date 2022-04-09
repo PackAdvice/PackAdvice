@@ -2,10 +2,10 @@ use crate::{pack_path, Pack};
 use std::collections::HashSet;
 
 pub struct ModelElementsCounter {
-    /// Total number of elements for all models
+    /// Total element amount of all models
     pub total: usize,
 
-    /// List of models and number of elements
+    /// List of model and element amount
     pub models: Vec<(String, usize)>,
 }
 

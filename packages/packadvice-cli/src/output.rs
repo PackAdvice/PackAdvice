@@ -50,7 +50,7 @@ pub fn cli_output(result: &PackResult) -> Result<()> {
     }
     if !result.model_elements_counter.models.is_empty() {
         writeln!(stdout)?;
-        write_title(&mut stdout, "List of models and number of elements")?;
+        write_title(&mut stdout, "List of model and element amount")?;
         writeln!(stdout, "  total: {}", result.model_elements_counter.total)?;
         for (model, size) in &result.model_elements_counter.models {
             writeln!(stdout, "  {}: {}", model, size)?;
