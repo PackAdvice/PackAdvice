@@ -37,7 +37,7 @@ fn _error(message: &str) -> Result<()> {
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::Red)).set_bold(true))?;
     write!(stdout, "   ERROR ")?;
     stdout.reset()?;
-    writeln!(stdout, "{}", message.replace("\n", "\n         "))
+    writeln!(stdout, "{}", message.replace('\n', "\n         "))
 }
 
 fn _success(message: &str) -> Result<()> {
@@ -45,7 +45,7 @@ fn _success(message: &str) -> Result<()> {
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::Green)).set_bold(true))?;
     write!(stdout, " SUCCESS ")?;
     stdout.reset()?;
-    writeln!(stdout, "{}", message.replace("\n", "\n         "))
+    writeln!(stdout, "{}", message.replace('\n', "\n         "))
 }
 
 pub(crate) fn stdout() -> StandardStream {
