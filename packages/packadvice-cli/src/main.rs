@@ -18,7 +18,7 @@ fn run() -> ExitCode {
     let mut options = Options::new();
 
     options.optflag("v", "version", "Prints version information");
-    options.optmulti("e", "export", "File path to export results", "FILE(.md)");
+    options.optmulti("o", "output", "File path to export results", "FILE(.md)");
 
     match options.parse(env::args().skip(1)) {
         Ok(option_matches) => {
@@ -29,8 +29,8 @@ fn run() -> ExitCode {
             } else {
                 match option_matches.free.first() {
                     Some(directory_path) => {
-                        let export_paths = option_matches.opt_strs("e");
-                        advice(directory_path, export_paths)
+                        let output_paths = option_matches.opt_strs("o");
+                        advice(directory_path, output_paths)
                     }
                     None => {
                         println!(
@@ -64,7 +64,7 @@ fn print_version_information() {
     println!("PackAdvice {}", env!("CARGO_PKG_VERSION"));
 }
 
-fn advice(directory_path: &str, export_paths: Vec<String>) -> ExitCode {
+fn advice(directory_path: &str, output_paths: Vec<String>) -> ExitCode {
     let (sender, mut receiver) = channel::<PackAdviserStatus>(64);
     let runtime = runtime::Builder::new_current_thread().build().unwrap();
     let cli_thread = runtime.spawn(async move {
@@ -90,11 +90,11 @@ fn advice(directory_path: &str, export_paths: Vec<String>) -> ExitCode {
         match packadviser.await.unwrap() {
             Ok(result) => {
                 cli_thread.await.ok();
-                for export in export_paths {
-                    let path = PathBuf::from(&export);
+                for output_path in output_paths {
+                    let path = PathBuf::from(&output_path);
                     match result.export(&path).await {
-                        Ok(_) => trace!("[Export] Success ({})", path.display()),
-                        Err(err) => error!("[Export] {} ({})", err, path.display()),
+                        Ok(_) => trace!("[Output] Success ({})", path.display()),
+                        Err(err) => error!("[Output] {} ({})", err, path.display()),
                     }
                 }
                 ExitCode::Success
