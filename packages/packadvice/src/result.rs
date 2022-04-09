@@ -76,16 +76,16 @@ impl PackResult {
                 }
                 if !self.model_elements_counter.models.is_empty() {
                     file.write(
-                        b"# List of model and element amount\n\
-                        Too many elements will affect rendering.\n\
-                        <details>\n\
-                        <summary>List</summary>\n\n\
-                        | Model | Elements |\n\
-                        |---|---|\n",
-                    )
-                    .await?;
-                    file.write(
-                        format!("| total | {} |\n", self.model_elements_counter.total).as_ref(),
+                        format!(
+                            "# List of model and element amount\n\
+                            Too many elements will affect rendering.\n\
+                            <details>\n\
+                            <summary>List</summary>\n\n\
+                            | Model | Elements({}) |\n\
+                            |---|---|\n",
+                            self.model_elements_counter.total
+                        )
+                        .as_ref(),
                     )
                     .await?;
                     for (model, size) in &self.model_elements_counter.models {
