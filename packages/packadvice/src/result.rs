@@ -6,12 +6,14 @@ use std::path::Path;
 use tokio::fs::File;
 use tokio::io;
 use tokio::io::AsyncWriteExt;
+use crate::feature::elements_counter::ModelElementsCounter;
 
 pub struct PackResult {
     pub pack: Pack,
     pub unreferenced_texture_checker: UnreferencedTextureChecker,
     pub unreferenced_model_checker: UnreferencedModelChecker,
     pub missing_texture_checker: MissingTextureChecker,
+    pub model_elements_counter: ModelElementsCounter,
 }
 
 impl PackResult {
@@ -66,9 +68,24 @@ impl PackResult {
                         <details>\n\
                         <summary>List</summary>\n\n",
                     )
-                    .await?;
+                        .await?;
                     for model in &self.missing_texture_checker.models {
                         file.write(format!(" - `{}`\n", model).as_ref()).await?;
+                    }
+                    file.write(b"</details>\n\n").await?;
+                }
+                if !self.model_elements_counter.models.is_empty() {
+                    file.write(
+                        b"# List of models and number of elements\n\
+                        Too many elements will affect rendering.\n\
+                        <details>\n\
+                        <summary>List</summary>\n\n\
+                        | Model | Elements |\n\
+                        |---|---|\n",
+                    )
+                        .await?;
+                    for (model, size) in &self.model_elements_counter.models {
+                        file.write(format!("| `{}` | {} |\n", model, size).as_ref()).await?;
                     }
                     file.write(b"</details>\n\n").await?;
                 }

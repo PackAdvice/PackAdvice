@@ -12,6 +12,7 @@ use std::path::PathBuf;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::Sender;
 use tokio::{fs, io};
+use crate::feature::elements_counter::ModelElementsCounter;
 
 #[derive(Default)]
 pub struct PackAdviser;
@@ -86,11 +87,15 @@ impl PackAdviser {
                     .ok();
             }
 
+            // Check model elements
+            let model_elements_counter = ModelElementsCounter::new(&pack);
+
             Ok(PackResult {
                 pack,
                 unreferenced_texture_checker,
                 unreferenced_model_checker,
                 missing_texture_checker,
+                model_elements_counter,
             })
         })
     }
