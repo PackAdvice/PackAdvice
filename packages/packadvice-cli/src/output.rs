@@ -1,10 +1,15 @@
-use termcolor::{Color, ColorSpec, StandardStream, WriteColor};
-use std::io::{Result, Write};
-use packadvice::result::PackResult;
 use crate::log::stdout;
+use packadvice::result::PackResult;
+use std::io::{Result, Write};
+use termcolor::{Color, ColorSpec, StandardStream, WriteColor};
 
 fn write_title(stdout: &mut StandardStream, title: &str) -> Result<()> {
-    stdout.set_color(ColorSpec::new().set_fg(Some(Color::Cyan)).set_bold(true).set_underline(true))?;
+    stdout.set_color(
+        ColorSpec::new()
+            .set_fg(Some(Color::Cyan))
+            .set_bold(true)
+            .set_underline(true),
+    )?;
     writeln!(stdout, "{}", title)?;
     stdout.reset()
 }
@@ -12,8 +17,16 @@ fn write_title(stdout: &mut StandardStream, title: &str) -> Result<()> {
 pub fn cli_output(result: &PackResult) -> Result<()> {
     let mut stdout = stdout();
     write_title(&mut stdout, "Pack meta")?;
-    writeln!(stdout, "  Pack format: {}", result.pack.pack_meta.pack_format)?;
-    writeln!(stdout, "  Minecraft version: {}", result.pack.pack_meta.minecraft_version())?;
+    writeln!(
+        stdout,
+        "  Pack format: {}",
+        result.pack.pack_meta.pack_format
+    )?;
+    writeln!(
+        stdout,
+        "  Minecraft version: {}",
+        result.pack.pack_meta.minecraft_version()
+    )?;
     if !result.unreferenced_texture_checker.textures.is_empty() {
         writeln!(stdout)?;
         write_title(&mut stdout, "Unused textures")?;
@@ -38,6 +51,7 @@ pub fn cli_output(result: &PackResult) -> Result<()> {
     if !result.model_elements_counter.models.is_empty() {
         writeln!(stdout)?;
         write_title(&mut stdout, "List of models and number of elements")?;
+        writeln!(stdout, "  total: {}", result.model_elements_counter.total)?;
         for (model, size) in &result.model_elements_counter.models {
             writeln!(stdout, "  {}: {}", model, size)?;
         }

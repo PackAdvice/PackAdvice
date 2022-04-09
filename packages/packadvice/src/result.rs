@@ -84,6 +84,10 @@ impl PackResult {
                         |---|---|\n",
                     )
                     .await?;
+                    file.write(
+                        format!("| total | {} |\n", self.model_elements_counter.total).as_ref(),
+                    )
+                    .await?;
                     for (model, size) in &self.model_elements_counter.models {
                         file.write(format!("| `{}` | {} |\n", model, size).as_ref())
                             .await?;

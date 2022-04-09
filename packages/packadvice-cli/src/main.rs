@@ -3,12 +3,12 @@ mod log;
 mod output;
 
 use crate::exit_code::ExitCode;
+use crate::output::cli_output;
 use getopts::Options;
 use packadvice::{PackAdviser, PackOptions};
 use std::path::PathBuf;
 use std::{env, process};
 use tokio::runtime;
-use crate::output::cli_output;
 
 fn main() {
     process::exit(run() as i32);

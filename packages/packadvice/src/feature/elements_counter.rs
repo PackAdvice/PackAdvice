@@ -2,6 +2,9 @@ use crate::{pack_path, Pack};
 use std::collections::HashSet;
 
 pub struct ModelElementsCounter {
+    /// Total number of elements for all models
+    pub total: usize,
+
     /// List of models and number of elements
     pub models: Vec<(String, usize)>,
 }
@@ -16,6 +19,7 @@ impl ModelElementsCounter {
         }
         let mut models = Vec::from_iter(models);
         models.sort_by(|(_, size_a), (_, size_b)| size_b.cmp(size_a));
-        ModelElementsCounter { models }
+        let total = models.iter().map(|(_, size)| size).sum();
+        ModelElementsCounter { total, models }
     }
 }
