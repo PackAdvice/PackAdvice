@@ -1,3 +1,4 @@
+use crate::feature::elements_counter::ModelElementsCounter;
 use crate::feature::unreferenced_model::UnreferencedModelChecker;
 use crate::result::PackResultExportError::{NoFileType, UnsupportedFileType};
 use crate::{MissingTextureChecker, Pack, UnreferencedTextureChecker};
@@ -6,7 +7,6 @@ use std::path::Path;
 use tokio::fs::File;
 use tokio::io;
 use tokio::io::AsyncWriteExt;
-use crate::feature::elements_counter::ModelElementsCounter;
 
 pub struct PackResult {
     pub pack: Pack,
@@ -68,7 +68,7 @@ impl PackResult {
                         <details>\n\
                         <summary>List</summary>\n\n",
                     )
-                        .await?;
+                    .await?;
                     for model in &self.missing_texture_checker.models {
                         file.write(format!(" - `{}`\n", model).as_ref()).await?;
                     }
@@ -83,9 +83,10 @@ impl PackResult {
                         | Model | Elements |\n\
                         |---|---|\n",
                     )
-                        .await?;
+                    .await?;
                     for (model, size) in &self.model_elements_counter.models {
-                        file.write(format!("| `{}` | {} |\n", model, size).as_ref()).await?;
+                        file.write(format!("| `{}` | {} |\n", model, size).as_ref())
+                            .await?;
                     }
                     file.write(b"</details>\n\n").await?;
                 }

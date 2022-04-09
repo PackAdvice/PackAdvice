@@ -1,14 +1,14 @@
-mod emoji;
 mod exit_code;
 mod log;
+mod output;
 
 use crate::exit_code::ExitCode;
 use getopts::Options;
-use packadvice::{PackAdviser, PackAdviserStatus, PackAdviserStatusType, PackOptions};
+use packadvice::{PackAdviser, PackOptions};
 use std::path::PathBuf;
 use std::{env, process};
 use tokio::runtime;
-use tokio::sync::mpsc::channel;
+use crate::output::cli_output;
 
 fn main() {
     process::exit(run() as i32);
@@ -65,36 +65,25 @@ fn print_version_information() {
 }
 
 fn advice(directory_path: &str, output_paths: Vec<String>) -> ExitCode {
-    let (sender, mut receiver) = channel::<PackAdviserStatus>(64);
     let runtime = runtime::Builder::new_current_thread().build().unwrap();
-    let cli_thread = runtime.spawn(async move {
-        while let Some(PackAdviserStatus { path, status_type }) = receiver.recv().await {
-            match status_type {
-                PackAdviserStatusType::Notice(message) => {
-                    trace!("[{}] {}", path, message)
-                }
-                PackAdviserStatusType::Warn(message) => {
-                    warn!("[{}] {}", path, message)
-                }
-                PackAdviserStatusType::Error(err) => {
-                    error!("[{}] {}", path, err)
-                }
-            }
-        }
-    });
     let options = PackOptions {
         path: PathBuf::from(directory_path),
     };
-    let packadviser = runtime.spawn_blocking(|| PackAdviser::new().run(options, sender));
+    let packadviser = runtime.spawn_blocking(|| PackAdviser::new().run(options));
     runtime.block_on(async {
         match packadviser.await.unwrap() {
             Ok(result) => {
-                cli_thread.await.ok();
-                for output_path in output_paths {
-                    let path = PathBuf::from(&output_path);
-                    match result.export(&path).await {
-                        Ok(_) => trace!("[Output] Success ({})", path.display()),
-                        Err(err) => error!("[Output] {} ({})", err, path.display()),
+                if output_paths.is_empty() {
+                    if let Some(err) = cli_output(&result).err() {
+                        error!("Output error ({})", err);
+                    }
+                } else {
+                    for output_path in output_paths {
+                        let path = PathBuf::from(&output_path);
+                        match result.export(&path).await {
+                            Ok(_) => success!("Export to {}", path.display()),
+                            Err(err) => error!("Export to {} ({})", path.display(), err),
+                        }
                     }
                 }
                 ExitCode::Success
