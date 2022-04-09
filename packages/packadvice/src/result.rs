@@ -81,8 +81,9 @@ impl PackResult {
                             Too many elements will affect rendering.\n\
                             <details>\n\
                             <summary>List</summary>\n\n\
-                            | Model | Elements({}) |\n\
+                            | Model({}) | Elements({}) |\n\
                             |---|---|\n",
+                            self.model_elements_counter.models.len(),
                             self.model_elements_counter.total
                         )
                         .as_ref(),
