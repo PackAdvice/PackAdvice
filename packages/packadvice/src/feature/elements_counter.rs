@@ -1,6 +1,9 @@
+mod tests;
+
 use crate::{pack_path, Pack};
 use std::collections::HashSet;
 
+#[derive(Debug, PartialEq)]
 pub struct ModelElementsCounter {
     /// Total element amount of all models
     pub total: usize,

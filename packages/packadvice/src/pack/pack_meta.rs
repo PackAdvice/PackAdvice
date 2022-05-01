@@ -3,6 +3,7 @@ use std::fmt;
 use std::path::Path;
 use tokio::{fs, io};
 
+#[derive(Default)]
 pub struct PackMeta {
     pub pack_format: i32,
 }

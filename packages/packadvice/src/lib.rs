@@ -1,5 +1,5 @@
 mod feature;
-mod pack;
+pub mod pack;
 pub mod result;
 mod util;
 

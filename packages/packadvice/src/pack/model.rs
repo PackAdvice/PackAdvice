@@ -14,6 +14,7 @@ pub struct Model {
     pub overrides: Vec<Override>,
 }
 
+#[derive(Default)]
 pub struct Element {
     pub faces: HashMap<String, Face>,
 }

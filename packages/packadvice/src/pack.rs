@@ -1,15 +1,16 @@
-mod blockstate;
-mod font;
-mod model;
-mod namespace;
+pub mod blockstate;
+pub mod font;
+pub mod model;
+pub mod namespace;
 pub mod pack_meta;
-mod texture;
+pub mod texture;
 
 use crate::pack::namespace::{get_namespaces, Namespace};
 use crate::pack::pack_meta::PackMeta;
 use std::path::Path;
 use tokio::fs;
 
+#[derive(Default)]
 pub struct Pack {
     pub pack_meta: PackMeta,
     pub namespaces: Vec<Namespace>,
