@@ -5,7 +5,7 @@ mod test {
     use crate::{ModelElementsCounter, Pack};
 
     #[test]
-    fn empty_pack() {
+    fn works_correctly_with_empty_pack() {
         let pack = Default::default();
         let counter = ModelElementsCounter {
             total: 0,
@@ -15,7 +15,7 @@ mod test {
     }
 
     #[test]
-    fn works() {
+    fn works_correctly_with_pack() {
         let pack = Pack {
             pack_meta: Default::default(),
             namespaces: vec![
