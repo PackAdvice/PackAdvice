@@ -19,52 +19,14 @@ mod test {
         let pack = Pack {
             pack_meta: Default::default(),
             namespaces: vec![
-                Namespace {
-                    name: "namespace_a".to_string(),
-                    path: Default::default(),
-                    blockstates: vec![],
-                    fonts: vec![],
-                    models: vec![
-                        Model {
-                            path: "model_a".to_string(),
-                            parent: None,
-                            textures: Default::default(),
-                            elements: vec![Default::default(); 2],
-                            overrides: vec![],
-                        },
-                        Model {
-                            path: "model_b".to_string(),
-                            parent: None,
-                            textures: Default::default(),
-                            elements: vec![Default::default(); 3],
-                            overrides: vec![],
-                        },
-                    ],
-                    textures: vec![],
-                },
-                Namespace {
-                    name: "namespace_b".to_string(),
-                    path: Default::default(),
-                    blockstates: vec![],
-                    fonts: vec![],
-                    models: vec![
-                        Model {
-                            path: "model_c".to_string(),
-                            parent: None,
-                            textures: Default::default(),
-                            elements: vec![],
-                            overrides: vec![],
-                        },
-                        Model {
-                            path: "model_d".to_string(),
-                            parent: None,
-                            textures: Default::default(),
-                            elements: vec![Default::default(); 5],
-                            overrides: vec![],
-                        },
-                    ],
-                    textures: vec![],
-                },
+                namespace(
+                    "namespace_a",
+                    vec![model("model_a", 2), model("model_b", 3)],
+                ),
+                namespace(
+                    "namespace_b",
+                    vec![model("model_c", 0), model("model_d", 5)],
+                ),
             ],
         };
         let counter = ModelElementsCounter {
@@ -77,5 +39,26 @@ mod test {
             ],
         };
         assert_eq!(counter, ModelElementsCounter::new(&pack))
+    }
+
+    fn namespace(name: &str, models: Vec<Model>) -> Namespace {
+        Namespace {
+            name: name.to_string(),
+            path: Default::default(),
+            blockstates: vec![],
+            fonts: vec![],
+            models,
+            textures: vec![],
+        }
+    }
+
+    fn model(path: &str, elements_len: usize) -> Model {
+        Model {
+            path: path.to_string(),
+            parent: None,
+            textures: Default::default(),
+            elements: vec![Default::default(); elements_len],
+            overrides: vec![],
+        }
     }
 }
