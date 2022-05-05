@@ -14,11 +14,12 @@ pub struct Model {
     pub overrides: Vec<Override>,
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 pub struct Element {
     pub faces: HashMap<String, Face>,
 }
 
+#[derive(Clone)]
 pub struct Face {
     pub texture: Option<String>,
 }
