@@ -79,6 +79,12 @@ impl PackMeta {
             7 => PackMinecraftVersion::Version("1.17"),
             8 => PackMinecraftVersion::Version("1.18"),
             9 => PackMinecraftVersion::Version("1.19"),
+            12 => PackMinecraftVersion::Version("1.19.3"),
+            13 => PackMinecraftVersion::Version("1.19.4"),
+            14 => PackMinecraftVersion::Versions {
+                from: "1.20",
+                to: "1.20.1"
+            },
             _ => PackMinecraftVersion::Unknown,
         }
     }
